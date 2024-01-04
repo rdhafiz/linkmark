@@ -14,4 +14,17 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-Route::get('', function (){ return view('welcome'); });
+
+/*
+ *
+ * Routes for front panel
+ * For Customer Portal the root url will be ('/')
+ *
+ * */
+
+
+Route::get('{any}', [FrontController::class, 'index'])->where('any','.*');
+
+
+
+
