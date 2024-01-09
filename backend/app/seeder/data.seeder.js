@@ -1,5 +1,5 @@
 const UserSeeder = require('./user.seeder')
 const seed = () => {
-    UserSeeder()
+    UserSeeder().then(r => { console.log("UserSeeder has been executed successfully!") })
 }
 seed();
