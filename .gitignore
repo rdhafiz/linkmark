@@ -3,6 +3,7 @@
 #/public/build
 /public/hot
 /public/storage
+/front-panel/node_modules
 /storage/*.key
 /vendor
 .env
