@@ -1,0 +1,31 @@
+.form-group{
+  &.form-theme{
+   .form-control{
+     box-shadow: none;
+     border-left:0;
+     border-right:0;
+     border-top:0;
+     border-radius: 0;
+   }
+  }
+  &.has-icon-left{
+    position: relative;
+    .input-icon{
+      position: absolute;
+      top: 2px;
+      left: 0;
+      font-size: 18px;
+    }
+    .form-control{
+      padding-left: 30px;
+    }
+  }
+  .form-control{
+    min-height: 38px;
+    height: auto;
+    font-size: 13px;
+    &:focus{
+      border-color: var(--blue-color)!important;
+    }
+  }
+}
