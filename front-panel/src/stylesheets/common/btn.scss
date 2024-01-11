@@ -1,0 +1,10 @@
+.btn-theme {
+  background: var(--blue-color);
+  color: var(--white);
+  @include border-radius(5px);
+  cursor: pointer;
+  &:hover {
+    color: var(--white);
+    background: darken(#6dabe4, 10%);
+  }
+}

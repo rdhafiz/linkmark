@@ -3,7 +3,9 @@
 function App() {
   return (
     <>
-        Redishketch
+       <main className={'main'}>
+           Main
+       </main>
     </>
   )
 }
