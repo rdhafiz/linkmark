@@ -6,7 +6,7 @@ const AuthReq = function (req, res, next) {
             const authorization = req.headers.authorization;
             const assess_token = authorization.replace('Bearer ', '', authorization);
             const decoded = jwt.verify(assess_token, process.env.JWT_SECRET);
-            req.body['auth'] = decoded
+            req.body['auth'] = decoded;
             next()
         } else {
             res.status(401).send({error: 'Unauthorized Request!'});
