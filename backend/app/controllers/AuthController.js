@@ -7,6 +7,7 @@ const UserServices = require('../services/UserService');
 const Mailer = require("../../config/mailer")
 
 const AuthController = {
+
     login: async (req, res) => {
         try {
             // Defining the schema for request body validation using "Joi"
@@ -48,6 +49,54 @@ const AuthController = {
             res.status(500).send(error.message);
         }
     },
+
+    register: async (req, res) => {
+        try {
+            const schema = Joi.object({
+                name: Joi.string().min(6).required(),
+                email: Joi.string().email().required(),
+                password: Joi.string().min(6).required(),
+                password_confirmation: Joi.ref('password'),
+            });
+            const validator = await schema.validate(req.body);
+            if (validator.error !== undefined) {
+                return res.status(400).json(Validator.parseError(validator.error));
+            }
+
+            const userCheck = await UserModel.findOne({email: req.body.email}).exec();
+            if (userCheck != null) {
+                return res.status(400).json({email: "Email already taken! Please try with another email."});
+            }
+
+            const salt = await bcrypt.genSalt();
+            const password = await bcrypt.hash('123asd123', salt);
+            const user = await UserModel.create({
+                avatar: null,
+                name: req.body.name,
+                email: req.body.email,
+                password: password,
+                activation_code: Math.random().toString().substr(2, 6),
+            });
+
+            const mailContext = {
+                name: user.name,
+                activation_code: user.activation_code,
+            }
+            const to = user.name + ` <${user.email}>`;
+            await Mailer.sent(to, 'Account Activation', mailContext, 'activation');
+
+            const access_token = jwt.sign({id: user._id}, process.env.JWT_SECRET, {
+                expiresIn: '30d',
+            });
+
+            // Returning a 200 OK response with user data and the generated access token
+            res.status(200).json({data: UserServices.parseData(user), access_token: access_token});
+        } catch (error) {
+            // Handling any unexpected errors and returning a 500 Internal Server Error response
+            res.status(500).send(error.message);
+        }
+    },
+
     forgot_password: async (req, res) => {
         try {
             const schema = Joi.object({
@@ -77,6 +126,7 @@ const AuthController = {
             res.status(500).send(error.message);
         }
     },
+
     reset_password: async (req, res) => {
         try {
             const schema = Joi.object({
@@ -104,6 +154,7 @@ const AuthController = {
             res.status(500).send(error.message);
         }
     }
+
 };
 
 // Exporting the authentication controller object for use in other modules
