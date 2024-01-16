@@ -7,6 +7,7 @@ const UserService = {
             designation: user.designation,
             email: user.email,
             user_type: user.user_type,
+            activation: user.activation_code != null ? 0 : 1
         }
     }
 }
