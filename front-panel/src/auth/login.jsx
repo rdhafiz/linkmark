@@ -11,7 +11,7 @@ const Login = () => {
     return (
         <>
             <div className="sign-in-form">
-                <h2 className="form-title">Sign up</h2>
+                <h2 className="form-title">Sign in</h2>
                 <form method="POST" className="register-form" id="login-form">
                     <div className="form-group form-theme has-icon-left mb-3">
                         <label htmlFor={'your_name'} className="input-icon"><i ><RiAccountPinCircleLine /></i></label>
@@ -24,8 +24,11 @@ const Login = () => {
                     <div className="form-group text-end mb-3">
                         <Link  to={'/forgot'}>Forgot Password</Link>
                     </div>
-                    <div className="form-group text-start">
-                        <button type="button" name="signin" id="signin" className="btn btn-theme btn-auth w-50" >Login</button>
+                    <div className="form-group text-start mb-3">
+                        <button type="button" name="signin" id="signin" className="btn btn-theme btn-auth w-100" >Sign In</button>
+                    </div>
+                    <div className="form-group text-center mb-3">
+                        Do not have an account? <Link  to={'/register'}> Register Now</Link>
                     </div>
                 </form>
             </div>
