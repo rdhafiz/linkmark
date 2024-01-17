@@ -54,14 +54,10 @@ const Login = () => {
         <>
             <div className="sign-in-form">
                 <h2 className="form-title">Sign in</h2>
-                <form method="POST"  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleSignIn();
-                }} className="register-form" id="login-form">
+                <form method="POST"  onSubmit={(e) => {e.preventDefault();handleSignIn();}} className="register-form" id="login-form">
                     <div className="form-group form-theme has-icon-left mb-3">
                         <label htmlFor={'email'} className="input-icon"><i ><RiAccountPinCircleLine /></i></label>
-                        <input type="text" value={formData.email}
-                               onChange={handleInputChange} name="email" id="email" className={'form-control'} placeholder="Email Address"/>
+                        <input type="text" value={formData.email} onChange={handleInputChange} name="email" id="email" className={'form-control'} placeholder="Email Address"/>
                         {renderError("email")}
                     </div>
                     <div className="form-group form-theme has-icon-left mb-2">
