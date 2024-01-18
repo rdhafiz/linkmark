@@ -4,6 +4,7 @@ import {createBrowserRouter, RouterProvider} from "react-router-dom";
 
 /*Layouts*/
 import AuthLayout from './layouts/AuthLayout.jsx'
+import MainLayout from "./layouts/MainLayout.jsx";
 
 
 /*Pages*/
@@ -17,6 +18,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 
 /*Customer scss*/
 import './stylesheets/styles.scss'
+import Home from "./pages/home.jsx";
 
 const router = createBrowserRouter(
     [
@@ -29,7 +31,14 @@ const router = createBrowserRouter(
                 {path:'/forgot', element:<Forgot/>},
                 {path:'/reset', element:<Reset/>},
             ]
-        }
+        },
+        {
+            path:'/',
+            element:<MainLayout/>,
+            children:[
+                {path:'/home', element:<Home/>},
+            ]
+        },
     ]
 )
 
