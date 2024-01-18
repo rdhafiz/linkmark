@@ -26,6 +26,7 @@ const Login = () => {
         });
     };
     const handleSignIn = async () => {
+        setErrors({});
         try {
             setIsLoading(true);
             const result = await api.post('/auth/login', formData);
