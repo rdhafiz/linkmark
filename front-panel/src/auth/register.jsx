@@ -6,7 +6,7 @@ import { IoLockClosedOutline } from "react-icons/io5";
 import { MdOutlineMarkEmailRead } from "react-icons/md";
 
 // Link to replace anchor tag <a></a>
-import {Link} from "react-router-dom";
+import {Link, Navigate, redirect, useNavigate} from "react-router-dom";
 import api from "../services/api.jsx";
 import {setCookie} from "../services/cookies.jsx";
 
@@ -19,6 +19,8 @@ const Register = () => {
     });
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
+
+    const navigate = useNavigate()
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -35,6 +37,7 @@ const Register = () => {
             if (result.access_token) {
                 setIsLoading(false);
                 setCookie('authToken', result.access_token, { expires: 7 });
+                navigate("/")
             } else {
                 setErrors(result);
                 setIsLoading(false);
