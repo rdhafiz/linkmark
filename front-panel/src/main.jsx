@@ -12,13 +12,13 @@ import Login from "./auth/login.jsx";
 import Forgot from "./auth/forgot.jsx";
 import Reset from "./auth/reset.jsx";
 import Register from "./auth/register.jsx";
+import Home from "./pages/home.jsx";
 
 /*Bootstrap css*/
 import 'bootstrap/dist/css/bootstrap.min.css'
 
-/*Customer scss*/
+/*Custom scss*/
 import './stylesheets/styles.scss'
-import Home from "./pages/home.jsx";
 
 const router = createBrowserRouter(
     [
