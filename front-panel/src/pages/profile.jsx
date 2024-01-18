@@ -2,8 +2,18 @@ import '../stylesheets/pages/profile.scss'
 
 // icons
 import {LuUploadCloud} from "react-icons/lu";
+import {useEffect, useState} from "react";
+import {getCookie} from "../services/cookies.jsx";
 
 function Profile() {
+    const [userInfo, setUserInfo] = useState({});
+    useEffect(() => {
+        // Use the cookie functions to get user info
+        const user = getCookie('userInfo');
+
+        // Update userInfo only if user is defined
+        user && setUserInfo(JSON.parse(user));
+    }, []);
     return (
         <>
             <div className="profile container">
@@ -16,7 +26,7 @@ function Profile() {
                         <div className="d-flex justify-content-center align-items-center">
                             <div className="profile-img-wrap mb-5">
                                 <img
-                                    src="https://ui-avatars.com/api/?background=6dabe4&color=fff&rounded=true&bold=true&name=R+C"
+                                    src={'https://ui-avatars.com/api/?background=6dabe4&color=fff&rounded=true&bold=true&name='+userInfo.name}
                                     alt="avatar"/>
                             </div>
                         </div>
@@ -24,12 +34,12 @@ function Profile() {
                         <div className="row mb-4">
                             <div className="d-flex mb-4">
                                 <div className="fw-bold me-3">Name :</div>
-                                <div className="flex-grow-1">Rahat Chowdhury</div>
+                                <div className="flex-grow-1">{userInfo.name}</div>
                             </div>
 
                             <div className="d-flex mb-4">
                                 <div className="fw-bold me-3">Email :</div>
-                                <div className="flex-grow-1">rahatchowdhury@gmail.com</div>
+                                <div className="flex-grow-1">{userInfo.email}</div>
                             </div>
                         </div>
 

@@ -35,6 +35,7 @@ const Login = () => {
             if (result.access_token) {
                 setIsLoading(false);
                 setCookie('authToken', result.access_token, { expires: 7 });
+                setCookie('userInfo', JSON.stringify(result.data), { expires: 7 });
                 navigate("/")
             } else {
                 setErrors(result);
