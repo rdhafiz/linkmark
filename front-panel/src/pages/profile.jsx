@@ -37,7 +37,10 @@ function Profile() {
                             <button type="button" className="btn btn-theme w-50 me-3" data-bs-toggle="modal"
                                     data-bs-target="#editProfile">Edit Profile
                             </button>
-                            <button type="button" className="btn btn-theme w-50">Change Password</button>
+
+                            <button type="button" className="btn btn-theme w-50" data-bs-toggle="modal"
+                                    data-bs-target="#changePassword">Change Password
+                            </button>
                         </div>
 
                     </div>
@@ -57,29 +60,23 @@ function Profile() {
                                 <div className="modal-body px-4">
 
                                     <div className="form-group d-flex justify-content-center align-items-center mb-4">
-                                        <label htmlFor="profileAvatar" className="avatar-upload-label">
-                                            <input type="file" className="d-none" id="profileAvatar"/>
-                                            <i><LuUploadCloud/></i>
-                                        </label>
+                                        <img className="modal-profile-img"
+                                             src="https://ui-avatars.com/api/?background=6dabe4&color=fff&rounded=true&bold=true&name=R+C"
+                                             alt="avatar"/>
                                     </div>
 
                                     <div className="form-group form-theme mb-3">
-                                        <label htmlFor="" className="form-label">First name</label>
-                                        <input type="text" className="form-control" name="first_name"
-                                               placeholder="Enter your first name"/>
+                                        <label htmlFor="" className="form-label">Name</label>
+                                        <input type="text" className="form-control ps-0" name="name"
+                                               placeholder="Enter your Name"/>
                                     </div>
 
-                                    <div className="form-group form-theme mb-3">
-                                        <label htmlFor="" className="form-label">Last name</label>
-                                        <input type="text" className="form-control" name="last_name"
-                                               placeholder="Enter your last name"/>
-                                    </div>
 
                                     <div className="form-group form-theme mb-3">
                                         <label htmlFor="" className="form-label">E-mail</label>
-                                        <input type="text" className="form-control" name="email"
-                                               placeholder="Enter your email address" disabled
-                                               value="rahatchowdhury@gmail.con"/>
+                                        <input type="text" className="form-control bg-white ps-0" name="email"
+                                               placeholder="Enter your email address" readOnly disabled
+                                               value="rahatchowdhury@gmail.com"/>
                                     </div>
 
 
@@ -94,6 +91,51 @@ function Profile() {
                     </div>
                 </div>
                 {/*Edit profile modal end  */}
+
+                {/*Change Password modal start*/}
+                <div className="modal fade" id="changePassword" tabIndex="-1" aria-labelledby="changePasswordLabel"
+                     aria-hidden="true">
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content">
+                            <div className="modal-header border-0">
+                                <h1 className="modal-title fs-5" id="changePasswordLabel">Change password</h1>
+                                <button type="button" className="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                            </div>
+                            <form action="" autoComplete="off">
+                                <div className="modal-body px-4">
+
+                                    <div className="form-group form-theme mb-3">
+                                        <label htmlFor="" className="form-label">Current password</label>
+                                        <input type="password" className="form-control ps-0" name="password"
+                                               placeholder="Enter your current password"/>
+                                    </div>
+
+                                    <div className="form-group form-theme mb-3">
+                                        <label htmlFor="" className="form-label">New password</label>
+                                        <input type="password" className="form-control ps-0" name="new_password"
+                                               placeholder="Enter new password"/>
+                                    </div>
+
+                                    <div className="form-group form-theme mb-3">
+                                        <label htmlFor="" className="form-label">Confirm password</label>
+                                        <input type="password" className="form-control ps-0"
+                                               name="password_confirmation"
+                                               placeholder="Confirm new password"/>
+                                    </div>
+
+
+                                </div>
+                                <div className="modal-footer border-0">
+                                    <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cancel
+                                    </button>
+                                    <button type="button" className="btn btn-theme">Confirm</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {/*Change Password modal end  */}
             </div>
         </>
     )

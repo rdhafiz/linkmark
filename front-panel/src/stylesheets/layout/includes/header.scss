@@ -4,6 +4,8 @@
   box-shadow: 0 0 5px rgba(0, 0, 0, .2);
 
   .brand-logo {
+    text-decoration: none;
+    color: var(--black-color);
     font-size: 25px;
     font-weight: 700;
     letter-spacing: 3px;
