@@ -13,9 +13,11 @@ import Forgot from "./auth/forgot.jsx";
 import Reset from "./auth/reset.jsx";
 import Register from "./auth/register.jsx";
 import Home from "./pages/home.jsx";
+import Profile from "./pages/profile.jsx";
 
 /*Bootstrap css*/
 import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/js/bootstrap.min.js'
 
 /*Custom scss*/
 import './stylesheets/styles.scss'
@@ -37,6 +39,7 @@ const router = createBrowserRouter(
             element:<MainLayout/>,
             children:[
                 {path:'/home', element:<Home/>},
+                {path:'/Profile', element:<Profile/>},
             ]
         },
     ]
