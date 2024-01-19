@@ -15,6 +15,13 @@ function Header() {
     const modalRef = useRef(null);
 
     const [isActivationModalVisible, setActivationModalVisibility] = useState(false);
+    const [isActivationWarningModalVisible, setActivationWarningModalVisibility] = useState(false);
+    const toggleActivationWarning = (val = false) => {
+        setActivationWarningModalVisibility(!isActivationWarningModalVisible);
+        if (val === true) {
+            toggleActivation()
+        }
+    };
     const toggleActivation = () => {
         setActivationModalVisibility(!isActivationModalVisible);
     };
@@ -29,10 +36,11 @@ function Header() {
             const parsedUser = JSON.parse(user);
             setUserInfo(parsedUser);
             if (userInfo.activation === 0) {
-                toggleActivation();
+                toggleActivationWarning();
             }
         }
     }, [getCookie]);
+
     return (
         <>
             <div className="header">
@@ -68,7 +76,7 @@ function Header() {
 
 
             {/*Resource modal start*/}
-            <Modal show={isActivationModalVisible} onHide={toggleActivation} ref={modalRef} centered>
+            <Modal show={isActivationWarningModalVisible} onHide={toggleActivationWarning} ref={modalRef} centered>
                 <Modal.Body className="px-4 text-center">
                     <i className="font-size-100 text-warning mb-4"><IoWarningOutline/></i>
 
@@ -76,14 +84,43 @@ function Header() {
                         otherwise your account will be deleted.</p>
                 </Modal.Body>
                 <Modal.Footer className="border-0 pb-5 justify-content-center">
-                    <Button className="w-25" variant="secondary" onClick={toggleActivation}>
+                    <Button className="w-25" variant="secondary" onClick={toggleActivationWarning}>
                         Close
                     </Button>
                     <Button variant="theme" type="submit"
-                            className="btn btn-theme w-25">Activate</Button>
+                            className="btn btn-theme w-25"
+                            onClick={() => toggleActivationWarning(true)}>Activate</Button>
                 </Modal.Footer>
             </Modal>
             {/*Resource modal end  */}
+
+
+            {/*Activation modal start*/}
+            <Modal show={isActivationModalVisible} onHide={toggleActivation} ref={modalRef} centered>
+                <Modal.Header className="border-0">
+                    <Modal.Title>Activate Account</Modal.Title>
+                </Modal.Header>
+                <form action="" autoComplete="off">
+                    <Modal.Body className="px-4">
+                        <div className="form-group form-theme mb-4">
+                            <label htmlFor="" className="form-label">Activation code</label>
+                            <input type="text" className="form-control ps-0" placeholder="Enter Activation code."/>
+                        </div>
+
+                        <a href="" className="resend d-block text-end">Resend Code</a>
+                    </Modal.Body>
+                    <Modal.Footer className="border-0">
+                        <Button className="w-25" variant="secondary" onClick={toggleActivation}>
+                            Close
+                        </Button>
+                        <Button variant="theme" type="submit"
+                                className="btn btn-theme w-25">Activate</Button>
+                    </Modal.Footer>
+                </form>
+            </Modal>
+            {/*Activation modal end  */}
+
+
         </>
     )
 }
