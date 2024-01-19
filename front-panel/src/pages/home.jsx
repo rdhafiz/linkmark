@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useRef, useState} from "react";
 
 
 import '../stylesheets/pages/home.scss'
@@ -7,15 +7,22 @@ import '../stylesheets/pages/home.scss'
 import {IoLink} from "react-icons/io5";
 import {FcFolder} from "react-icons/fc";
 import { FaPlus } from "react-icons/fa6";
+import {Button, Modal} from "react-bootstrap";
 
 function Home() {
+    const modalRef = useRef(null);
+
+    const [isResourceModalVisible, setResourceModalVisibility] = useState(false);
+    const toggleResourceModal = () => {
+        setResourceModalVisibility(!isResourceModalVisible);
+    };
+    
     return (
         <>
             <div className="home container">
 
                 <div className="mx-3 my-4 text-end">
-                    <button type="button" className="btn btn-theme width-120" data-bs-toggle="modal"
-                            data-bs-target="#resourceModal">Add   <i><FaPlus /></i>
+                    <button type="button" className="btn btn-theme width-120" onClick={() => toggleResourceModal()}>Add   <i><FaPlus /></i>
                     </button>
                 </div>
                 <div className="home-content p-3">
@@ -93,46 +100,45 @@ function Home() {
                 </div>
 
 
-                <div className="modal fade" id="resourceModal" tabIndex="-1" aria-labelledby="resourceModalLabel"
-                     aria-hidden="true">
-                    <div className="modal-dialog modal-dialog-centered">
-                        <div className="modal-content">
-                            <div className="modal-header border-0">
-                                <h1 className="modal-title fs-5" id="resourceModalLabel">Add New Resource</h1>
-                                <button type="button" className="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
+
+                {/*Resource modal start*/}
+                <Modal show={isResourceModalVisible} onHide={toggleResourceModal} ref={modalRef} centered>
+                    <Modal.Header closeButton className="border-0">
+                        <Modal.Title>Add New Resource</Modal.Title>
+                    </Modal.Header>
+                    <form autoComplete="off">
+                        <Modal.Body className="px-4">
+                            <div className="form-group form-theme mb-4">
+                                <label htmlFor="" className="form-label">Title</label>
+                                <input type="text" className="form-control ps-0" autoComplete="new title" placeholder="Enter a title."/>
                             </div>
-                            <form action="">
-                                <div className="modal-body px-4">
-                                    <div className="form-group form-theme mb-4">
-                                        <label htmlFor="" className="form-label">Title</label>
-                                        <input type="text" className="form-control ps-0" placeholder="Enter a title."/>
-                                    </div>
 
-                                    <div className="form-group form-theme mb-4">
-                                        <label htmlFor="" className="form-label">URL</label>
-                                        <input type="text" className="form-control ps-0" placeholder="Enter URL"/>
-                                    </div>
+                            <div className="form-group form-theme mb-4">
+                                <label htmlFor="" className="form-label">URL</label>
+                                <input type="text" className="form-control ps-0" autoComplete="new URL" placeholder="Enter URL"/>
+                            </div>
 
-                                    <div className="form-group form-theme mb-4">
-                                        <label htmlFor="" className="form-label">Select Folder</label>
-                                        <select name="" className="form-select form-control ps-0" id="">
-                                            <option value="">Select a folder</option>
-                                            <option value="">Option 1</option>
-                                            <option value="">Option 2</option>
-                                            <option value="">Option 3</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div className="modal-footer border-0">
-                                    <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cancel
-                                    </button>
-                                    <button type="button" className="btn btn-theme">Confirm</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+                            <div className="form-group form-theme mb-4">
+                                <label htmlFor="" className="form-label">Select Folder</label>
+                                <select name="" className="form-select form-control ps-0" id="">
+                                    <option value="">Select a folder</option>
+                                    <option value="">Option 1</option>
+                                    <option value="">Option 2</option>
+                                    <option value="">Option 3</option>
+                                </select>
+                            </div>
+                        </Modal.Body>
+                        <Modal.Footer className="border-0">
+                            <Button className="w-25" variant="secondary" onClick={toggleResourceModal}>
+                                Close
+                            </Button>
+                            <Button variant="theme" type="submit"
+                                    className="btn btn-theme w-25">Confirm</Button>
+                        </Modal.Footer>
+                    </form>
+                </Modal>
+                {/*Resource modal end  */}
+
 
             </div>
         </>
