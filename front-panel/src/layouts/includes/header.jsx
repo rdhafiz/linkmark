@@ -6,12 +6,16 @@ import {Button, Modal} from "react-bootstrap";
 
 // icons
 import {IoWarningOutline} from "react-icons/io5";
+import api from "../../services/api.jsx";
 
 function Header() {
     const [isDropdown, setIsDropdown] = useState(false);
     const [userInfo, setUserInfo] = useState({});
+    const [errors, setErrors] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate()
     const modalRef = useRef(null);
+
 
     const [isActivationModalVisible, setActivationModalVisibility] = useState(false);
     const [isActivationWarningModalVisible, setActivationWarningModalVisibility] = useState(false);
@@ -29,6 +33,7 @@ function Header() {
         removeCookie('authToken')
         navigate("/auth/login")
     }
+
     useEffect(() => {
         const user = getCookie('userInfo');
         if (user !== undefined) {
@@ -39,6 +44,26 @@ function Header() {
             }
         }
     }, [getCookie]);
+
+    // Resend activation code handler
+    const handleResendCode = async () => {
+        setErrors({});
+        try {
+            setIsLoading(true);
+            const result = await api.get('/profile/activation/resend');
+            if (result.msg) {
+                setIsLoading(false);
+                // Update the user information in cookies after a successful update
+                toggleActivation();
+            } else {
+                setErrors(result);
+                setIsLoading(false);
+            }
+        } catch (error) {
+            setIsLoading(false);
+            console.error("Error during resend code:", error);
+        }
+    };
 
     return (
         <>
@@ -114,7 +139,7 @@ function Header() {
                             <input type="text" className="form-control ps-0" placeholder="Enter Activation code."/>
                         </div>
 
-                        <a href="" className="resend d-block text-end">Resend Code</a>
+                        <a href="" className="resend d-block text-end" onClick={() => handleResendCode}>Resend Code</a>
                     </Modal.Body>
                     <Modal.Footer className="border-0">
                         <Button className="w-25" variant="secondary" onClick={toggleActivation}>
