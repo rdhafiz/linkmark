@@ -12,12 +12,12 @@ function Header() {
         navigate("/auth/login")
     }
     useEffect(() => {
-        // Use the cookie functions to get user info
         const user = getCookie('userInfo');
-
-        // Update userInfo only if user is defined
-        user && setUserInfo(JSON.parse(user));
-    }, []);
+        if (user !== undefined) {
+            const parsedUser = JSON.parse(user);
+            setUserInfo(parsedUser);
+        }
+    }, [getCookie]);
     return (
         <>
             <div className="header">
