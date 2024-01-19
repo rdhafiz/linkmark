@@ -11,7 +11,6 @@ function Header() {
     const [isDropdown, setIsDropdown] = useState(false);
     const [userInfo, setUserInfo] = useState({});
     const navigate = useNavigate()
-
     const modalRef = useRef(null);
 
     const [isActivationModalVisible, setActivationModalVisibility] = useState(false);
@@ -66,6 +65,14 @@ function Header() {
                                 </li>
                                 <li><Link to={'/profile'} className="dropdown-item p-2 rounded-3 mb-2">Profile</Link>
                                 </li>
+                                {userInfo.activation === 0 ? (<>
+                                    <li>
+                                        <a className="dropdown-item p-2 rounded-3" onClick={() => toggleActivation()}>
+                                            Activate account
+                                        </a>
+                                    </li>
+                                </>) : <></>}
+
                                 <li><a className="dropdown-item p-2 rounded-3" onClick={() => logout()}>Logout</a></li>
                             </ul>
                         </>) : <></>}
