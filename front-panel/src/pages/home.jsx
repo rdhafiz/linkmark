@@ -14,7 +14,7 @@ import {setCookie} from "../services/cookies.jsx";
 function Home() {
     const [formData, setFormData] = useState({
         title: "",
-        parent_id: 0,
+        parent_id: '0',
         url: "",
     });
     const [errors, setErrors] = useState({});
@@ -37,13 +37,13 @@ function Home() {
     };
     const handleBookmarkManage = async () => {
         setErrors({});
-        resetForm()
         try {
             setIsLoading(true);
             const result = await api.post('/resource/create', formData);
-            if (result.msg) {
+            if (result.data) {
                 setIsLoading(false);
                 toggleResourceModal();
+                resetForm()
             } else {
                 setErrors(result);
                 setIsLoading(false);
@@ -64,7 +64,7 @@ function Home() {
     const resetForm = () => {
         setFormData({
             title: "",
-            parent_id: 0,
+            parent_id: '0',
             url: "",
         })
     }
@@ -120,6 +120,7 @@ function Home() {
                                 <input type="text" className="form-control ps-0"
                                        autoComplete='new-title'
                                        value={formData.title}
+                                       name={'title'}
                                        onChange={handleInputChange}
                                        placeholder="Enter a title."/>
                                 {renderError("title")}
@@ -128,6 +129,7 @@ function Home() {
                             <div className="form-group form-theme mb-4">
                                 <input type="text" className="form-control ps-0"
                                        autoComplete='new-url'
+                                       name={'url'}
                                        value={formData.url}
                                        onChange={handleInputChange}
                                        placeholder="Enter URL"/>
@@ -135,9 +137,10 @@ function Home() {
                             </div>
 
                             <div className="form-group form-theme mb-4">
-                                <select name="" className="form-select form-control ps-0"
+                                <select  className="form-select form-control ps-0"
+                                        name={'parent_id'}
                                         value={formData.parent_id}
-                                        onChange={handleInputChange} id="">
+                                        onChange={handleInputChange} >
                                     <option value="">Select a folder</option>
                                 </select>
                                 {renderError("parent_id")}
