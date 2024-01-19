@@ -4,7 +4,7 @@ import '../stylesheets/pages/profile.scss'
 import React, {useEffect, useRef, useState} from "react";
 import {getCookie, setCookie} from "../services/cookies.jsx";
 import api from "../services/api.jsx";
-import { Button, Modal } from 'react-bootstrap';
+import {Button, Modal} from 'react-bootstrap';
 
 function Profile() {
     const [formData, setFormData] = useState({
@@ -13,7 +13,8 @@ function Profile() {
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const [userInfo, setUserInfo] = useState({});
-    const [isModalVisible, setModalVisibility] = useState(false);
+    const [isProfileModalVisible, setProfileModalVisibility] = useState(false);
+    const [isPasswordModalVisible, setPasswordModalVisibility] = useState(false);
     const modalRef = useRef(null);
 
     useEffect(() => {
@@ -53,8 +54,11 @@ function Profile() {
             console.error("Error during login:", error);
         }
     };
-    const toggleModal = () => {
-        setModalVisibility(!isModalVisible);
+    const toggleProfileModal = () => {
+        setProfileModalVisibility(!isProfileModalVisible);
+    };
+    const togglePasswordModal = () => {
+        setPasswordModalVisibility(!isPasswordModalVisible);
     };
 
     return (
@@ -87,11 +91,12 @@ function Profile() {
                         </div>
 
                         <div className="d-flex">
-                            <button type="button" className="btn btn-theme w-50 me-3" onClick={(e) => toggleModal()}>Edit Profile
+                            <button type="button" className="btn btn-theme w-50 me-3"
+                                    onClick={(e) => toggleProfileModal()}>Edit Profile
                             </button>
 
-                            <button type="button" className="btn btn-theme w-50" data-bs-toggle="modal"
-                                    data-bs-target="#changePassword">Change Password
+                            <button type="button" className="btn btn-theme w-50"
+                                    onClick={() => togglePasswordModal()}>Change Password
                             </button>
                         </div>
 
@@ -99,110 +104,92 @@ function Profile() {
                 </div>
 
                 {/*Edit profile modal start*/}
-           {/*     <div ref={modalRef} className={`modal fade`} id="editProfile" tabIndex="-1" aria-labelledby="editProfileLabel"
-                     aria-hidden={!isModalVisible} onClick={() => toggleModal()}>
-                    <div className="modal-dialog modal-dialog-centered">
-                        <div className="modal-content">
-                            <div className="modal-header border-0">
-                                <h1 className="modal-title fs-5" id="editProfileLabel">Edit Profile</h1>
-                                <button type="button" className="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                            </div>
-                            <form onSubmit={(e) => {e.preventDefault();UpdateProfile();}}>
-                                <div className="modal-body px-4">
-
-                                    <div className="form-group d-flex justify-content-center align-items-center mb-4">
-                                        <img className="modal-profile-img"
-                                             src={'https://ui-avatars.com/api/?background=6dabe4&color=fff&rounded=true&bold=true&name=' + userInfo.name}
-                                             alt="avatar"/>
-                                    </div>
-
-                                    <div className="form-group form-theme mb-3">
-                                        <label htmlFor="" className="form-label">Name</label>
-                                        <input type="text" className="form-control ps-0" name="name"
-                                               value={formData.name} onChange={handleInputChange}
-                                               placeholder="Enter your Name"/>
-                                    </div>
-
-
-                                    <div className="form-group form-theme mb-3">
-                                        <label htmlFor="" className="form-label">E-mail</label>
-                                        <input type="text" className="form-control bg-white ps-0" name="email"
-                                               placeholder="Enter your email address" readOnly disabled
-                                               value={userInfo.email}/>
-                                    </div>
-                                </div>
-                                <div className="modal-footer border-0 d-flex">
-                                    <button type="button" className="btn btn-secondary w-25" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" name="signin" id="signin" disabled={isLoading} className="btn btn-theme w-25 " >{isLoading ? 'Saving...' : 'Save'}</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>*/}
-                {/*Edit profile modal end  */}
-                <Modal show={isModalVisible} onHide={toggleModal} ref={modalRef}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>My Modal</Modal.Title>
+                <Modal show={isProfileModalVisible} onHide={toggleProfileModal} ref={modalRef} centered>
+                    <Modal.Header closeButton className="border-0">
+                        <Modal.Title>Edit Profile</Modal.Title>
                     </Modal.Header>
-                    <Modal.Body>
-                        {/* Add modal content here */}
-                        <p>This is the modal content.</p>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={toggleModal}>
-                            Close
-                        </Button>
-                        <Button variant="primary" onClick={toggleModal}>
-                            Save Changes
-                        </Button>
-                    </Modal.Footer>
-                </Modal>
-
-                {/*Change Password modal start*/}
-                <div className="modal fade" id="changePassword" tabIndex="-1" aria-labelledby="changePasswordLabel"
-                     aria-hidden="true">
-                    <div className="modal-dialog modal-dialog-centered">
-                        <div className="modal-content">
-                            <div className="modal-header border-0">
-                                <h1 className="modal-title fs-5" id="changePasswordLabel">Change password</h1>
-                                <button type="button" className="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
+                    <form autoComplete="off" onSubmit={(e) => {
+                        e.preventDefault();
+                        UpdateProfile();
+                    }}>
+                        <Modal.Body className="px-4">
+                            <div className="form-group d-flex justify-content-center align-items-center mb-4">
+                                <img className="modal-profile-img"
+                                     src={'https://ui-avatars.com/api/?background=6dabe4&color=fff&rounded=true&bold=true&name=' + userInfo.name}
+                                     alt="avatar"/>
                             </div>
-                            <form action="" autoComplete="off">
-                                <div className="modal-body px-4">
 
-                                    <div className="form-group form-theme mb-3">
-                                        <label htmlFor="" className="form-label">Current password</label>
-                                        <input type="password" className="form-control ps-0" name="password"
-                                               placeholder="Enter your current password"/>
-                                    </div>
-
-                                    <div className="form-group form-theme mb-3">
-                                        <label htmlFor="" className="form-label">New password</label>
-                                        <input type="password" className="form-control ps-0" name="new_password"
-                                               placeholder="Enter new password"/>
-                                    </div>
-
-                                    <div className="form-group form-theme mb-3">
-                                        <label htmlFor="" className="form-label">Confirm password</label>
-                                        <input type="password" className="form-control ps-0"
-                                               name="password_confirmation"
-                                               placeholder="Confirm new password"/>
-                                    </div>
+                            <div className="form-group form-theme mb-3">
+                                <label htmlFor="" className="form-label">Name</label>
+                                <input type="text" className="form-control ps-0" name="name" autoComplete="new name"
+                                       value={formData.name} onChange={handleInputChange}
+                                       placeholder="Enter your Name"/>
+                            </div>
 
 
-                                </div>
-                                <div className="modal-footer border-0">
-                                    <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cancel
-                                    </button>
-                                    <button type="button" className="btn btn-theme">Confirm</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                {/*Change Password modal end  */}
+                            <div className="form-group form-theme mb-3">
+                                <label htmlFor="" className="form-label">E-mail</label>
+                                <input type="text" className="form-control bg-white ps-0" name="email"
+                                       autoComplete="email"
+                                       placeholder="Enter your email address" readOnly disabled
+                                       value={userInfo.email}/>
+                            </div>
+                        </Modal.Body>
+                        <Modal.Footer className="border-0">
+                            <Button className="w-25" variant="secondary" onClick={toggleProfileModal}>
+                                Close
+                            </Button>
+                            <Button variant="theme" type="submit" name="signin" id="signin" disabled={isLoading}
+                                    className="btn btn-theme w-25">{isLoading ? 'Saving...' : 'Save'}</Button>
+                        </Modal.Footer>
+                    </form>
+                </Modal>
+                {/*Edit profile modal end  */}
+
+                {/*Change password modal start*/}
+                <Modal show={isPasswordModalVisible} onHide={togglePasswordModal} ref={modalRef} centered>
+                    <Modal.Header closeButton className="border-0">
+                        <Modal.Title>Change password</Modal.Title>
+                    </Modal.Header>
+                    <form autoComplete="off" onSubmit={(e) => {
+                        e.preventDefault();
+                        UpdateProfile();
+                    }}>
+                        <Modal.Body className="px-4">
+                            <div className="form-group form-theme mb-3">
+                                <label htmlFor="" className="form-label">Current password</label>
+                                <input type="password" className="form-control ps-0" name="password"
+                                       autoComplete="new current password"
+                                       placeholder="Enter your current password"/>
+                            </div>
+
+                            <div className="form-group form-theme mb-3">
+                                <label htmlFor="" className="form-label">New password</label>
+                                <input type="password" className="form-control ps-0" name="new_password"
+                                       autoComplete="new password"
+                                       placeholder="Enter new password"/>
+                            </div>
+
+                            <div className="form-group form-theme mb-3">
+                                <label htmlFor="" className="form-label">Confirm password</label>
+                                <input type="password" className="form-control ps-0" autoComplete="new confirm password"
+                                       name="password_confirmation"
+                                       placeholder="Confirm new password"/>
+                            </div>
+
+                        </Modal.Body>
+                        <Modal.Footer className="border-0">
+                            <Button className="w-25" variant="secondary" onClick={togglePasswordModal}>
+                                Close
+                            </Button>
+                            <Button variant="theme" type="submit"
+                                    className="btn btn-theme w-25">Confirm</Button>
+                        </Modal.Footer>
+                    </form>
+                </Modal>
+                {/*Change password modal end  */}
+
+
             </div>
         </>
     )
