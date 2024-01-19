@@ -32,16 +32,32 @@
     width: 350px;
     right: 10px;
     top: 70px;
-    li{
-      .dropdown-item{
+
+    li {
+      .dropdown-item {
         cursor: pointer;
-        &:active{
+
+        &:active {
           background-color: var(--grey-light);
         }
       }
     }
+
     @media screen and (max-width: 400px) {
       width: 300px;
     }
+  }
+
+}
+
+
+.resend {
+  text-decoration: none;
+  color: var(--blue-color);
+  transition: .2s all ease-in-out;
+
+  &:hover {
+    transition: .2s all ease-in-out;
+    color: var(--blue-1);
   }
 }
