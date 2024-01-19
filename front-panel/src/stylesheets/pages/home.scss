@@ -17,12 +17,42 @@
     .link-box {
       width: 100%;
       height: 250px;
+      &:hover{
+        .edit{
+          transition: all .2s ease;
+          opacity: 1;
+          visibility: visible;
+        }
+      }
+      .edit{
+        background: none;
+        border: none;
+        position: absolute;
+        top: 5px;
+        opacity: 0;
+        visibility: hidden;
+        transition: all .2s ease;
+        right: 5px;
+        svg{
+          font-size: 18px;
+          transition: all .2s ease;
+          &:hover{
+            transition: all .2s ease;
+            fill: #6dabe4;
+          }
+        }
+      }
 
       .link-box-cover {
         width: 100%;
         height: 130px;
         font-size: 30px;
         background-color: var(--grey-1);
+        img{
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
 
         &.folder {
           font-size: 50px;

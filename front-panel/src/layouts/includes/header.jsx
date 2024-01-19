@@ -39,11 +39,13 @@ function Header() {
         if (user !== undefined) {
             const parsedUser = JSON.parse(user);
             setUserInfo(parsedUser);
-            if (userInfo.activation === 0) {
+
+            if (parsedUser.activation === 0) {
                 toggleActivationWarning();
             }
         }
-    }, [getCookie]);
+    }, []); // The empty dependency array ensures the effect runs only once, similar to componentDidMount
+
 
     // Resend activation code handler
     const handleResendCode = async () => {

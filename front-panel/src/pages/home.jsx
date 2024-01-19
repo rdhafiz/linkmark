@@ -1,4 +1,4 @@
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 
 
 import '../stylesheets/pages/home.scss'
@@ -10,23 +10,33 @@ import { FaPlus } from "react-icons/fa6";
 import {Button, Modal} from "react-bootstrap";
 import api from "../services/api.jsx";
 import {setCookie} from "../services/cookies.jsx";
+import Link from "../components/Link.jsx";
+import Folder from "../components/Folder.jsx";
 
 function Home() {
+    /*Global*/
+    const [errors, setErrors] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
+    const modalRef = useRef(null);
+    const renderError = (fieldName) => {
+        if (errors[fieldName]) {
+            return <div className="text-danger">{errors[fieldName]}</div>;
+        }
+        return null;
+    };
+
+
+    /*Folder*/
+    const [isFolderModalVisible, setIsFolderModalVisible] = useState(false);
     const [folderFormData, setFolderFormData] = useState({
         title: "",
         parent_id: '0',
     });
-    const [errors, setErrors] = useState({});
-    const [isLoading, setIsLoading] = useState(false);
-    const modalRef = useRef(null);
-
-    const [isResourceModalVisible, setResourceModalVisibility] = useState(false);
-    const toggleResourceModal = () => {
-        resetForm()
-        setResourceModalVisibility(!isResourceModalVisible);
+    const toggleFolderModal = () => {
+        setErrors({});
+        resetFormFolder()
+        setIsFolderModalVisible(!isFolderModalVisible);
     };
-
-    // Handle input change
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFolderFormData({
@@ -34,15 +44,16 @@ function Home() {
             [name]: value,
         });
     };
-    const handleBookmarkManage = async () => {
+    const folderManage = async () => {
         setErrors({});
         try {
             setIsLoading(true);
             const result = await api.post('/resource/create', folderFormData);
             if (result.data) {
                 setIsLoading(false);
-                toggleResourceModal();
-                resetForm()
+                toggleFolderModal();
+                resetFormFolder()
+                await fetchListData()
             } else {
                 setErrors(result);
                 setIsLoading(false);
@@ -52,66 +63,170 @@ function Home() {
             console.error("Error during bookmark create:", error);
         }
     };
-
-    const renderError = (fieldName) => {
-        if (errors[fieldName]) {
-            return <div className="text-danger">{errors[fieldName]}</div>;
-        }
-        return null;
-    };
-
-    const resetForm = () => {
+    const resetFormFolder = () => {
         setFolderFormData({
             title: "",
             parent_id: '0',
         })
     }
 
+    /*Url*/
+    const [isUrlModalVisible, setIsUrlModalVisible] = useState(false);
+    const [urlFormData, setUrlFormData] = useState({
+        title: "",
+        parent_id: '0',
+        url: '',
+    });
+    const toggleUrlModal = () => {
+        setErrors({});
+        resetFormUrl()
+        setIsUrlModalVisible(!isUrlModalVisible);
+    };
+    const handleInputChangeUrl = (e) => {
+        const { name, value } = e.target;
+        setUrlFormData({
+            ...urlFormData,
+            [name]: value,
+        });
+    };
+    const UrlManage = async () => {
+        setErrors({});
+        try {
+            setIsLoading(true);
+            const result = await api.post('/resource/create', urlFormData);
+            if (result.data) {
+                setIsLoading(false);
+                toggleUrlModal();
+                resetFormUrl()
+            } else {
+                setErrors(result);
+                setIsLoading(false);
+                await fetchListData()
+            }
+        } catch (error) {
+            setIsLoading(false);
+            console.error("Error during bookmark create:", error);
+        }
+    };
+    const resetFormUrl = () => {
+        setFolderFormData({
+            title: "",
+            url: '',
+            parent_id: '0',
+        })
+    }
+
+    /*Edit*/
+    const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+    const [isFolderOrUrl, setIsFolderOrUrl] = useState(false);
+    const [editFormData, setEditFormData] = useState({
+        id: "",
+        title: "",
+        parent_id: '0',
+    });
+    const toggleEditModal = (data = null, type = 'link') => {
+        setErrors({});
+        if(data != null){
+            resetFormEdit(data)
+        }
+        if (type === 'link'){
+            setIsFolderOrUrl(true)
+        }else{
+            setIsFolderOrUrl(false)
+        }
+        setIsEditModalVisible(!isEditModalVisible);
+    };
+    const handleInputChangeEdit = (e) => {
+        const { name, value } = e.target;
+        setEditFormData({
+            ...editFormData,
+            [name]: value,
+        });
+    };
+    const EditManage = async () => {
+        setErrors({});
+        try {
+            setIsLoading(true);
+            const result = await api.put('/resource/update', editFormData);
+            if (result.msg) {
+                setIsLoading(false);
+                resetFormUrl()
+                await fetchListData()
+                await toggleEditModal()
+            } else {
+                setErrors(result);
+                setIsLoading(false);
+            }
+        } catch (error) {
+            setIsLoading(false);
+            console.error("Error during bookmark create:", error);
+        }
+    };
+    const resetFormEdit = (data) => {
+        setEditFormData({
+            id: data._id,
+            title: data.title,
+            parent_id: data.parent_id,
+        })
+    }
+
+    /*List*/
+    const [isListLoading, setIsListLoading] = useState(false);
+    const [listData, setListData] = useState([]);
+    const [listFormData, setListFormData] = useState({
+        page: 1,
+        limit: 20,
+        parent_id: '0',
+    });
+    const fetchListData = async () => {
+        try {
+            setIsListLoading(true);
+            const result = await api.get(`/resource/all?page=${listFormData.page}&limit=${listFormData.limit}&parent_id=${listFormData.parent_id}`);
+            if (result.data) {
+                setListData(result.data);
+                setIsListLoading(false);
+            } else {
+                setErrors(result);
+                setIsListLoading(false);
+            }
+        } catch (error) {
+            setIsListLoading(false);
+            console.error("Error during list retrieval:", error);
+        }
+    };
+
+
+
+    useEffect(() => {
+        fetchListData();
+    }, []);
     return (
         <>
             <div className="home container">
 
                 <div className="mx-3 my-4 text-end">
-                    <button type="button" className="btn btn-theme width-120" onClick={() => toggleResourceModal()}>Add   <i><FaPlus /></i>
-                    </button>
+                    <button type="button" className="btn btn-theme width-150 me-3" onClick={() => toggleFolderModal()}>Add Folder   <i><FaPlus /></i></button>
+                    <button type="button" className="btn btn-theme width-150" onClick={() => toggleUrlModal()}>Add URL   <i><FaPlus /></i></button>
                 </div>
                 <div className="home-content p-3">
                     {/*Link*/}
-                    <div className="link-box rounded-3 shadow-sm">
-                        <div
-                            className="link-box-cover rounded-top-3 d-flex justify-content-center align-items-center">
-                            <i><IoLink/></i>
-                        </div>
-                        <div className="link-box-content p-3 bg-dark rounded-bottom-3">
-                            <h5 className="title fw-bold">Title</h5>
-                            <p className="small desc mb-2">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
-                            <p className="link">https://github.com</p>
-                        </div>
-                    </div>
-                    {/*Folder*/}
-                    <div className="link-box rounded-3 shadow-sm">
-                        <div
-                            className="link-box-cover folder rounded-top-3 d-flex justify-content-center align-items-center">
-                            <FcFolder/>
-                        </div>
-                        <div className="link-box-content p-3 bg-dark rounded-bottom-3">
-                            <h5 className="title fw-bold">Title</h5>
-                            <p className="small desc mb-2">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
-                            <p className="link">https://github.com</p>
-                        </div>
-                    </div>
+                    {listData.map((data, index) => (
+                        data.is_dir === 0 ? (
+                            <Link key={index} item={data}  toggleEditModal={toggleEditModal}  />
+                        ) : <Folder key={index} item={data}  toggleEditModal={toggleEditModal}  />
+                    ))}
                 </div>
 
 
 
-                {/*Resource modal start*/}
-                <Modal show={isResourceModalVisible} onHide={toggleResourceModal} ref={modalRef} centered>
+                {/*Folder modal start*/}
+                <Modal show={isFolderModalVisible} onHide={toggleFolderModal} ref={modalRef} centered>
                     <Modal.Header closeButton className="border-0">
                         <Modal.Title>New Folder</Modal.Title>
                     </Modal.Header>
                     <form autoComplete="off" onSubmit={(e) => {
                         e.preventDefault();
-                        handleBookmarkManage();
+                        folderManage();
                     }}>
                         <Modal.Body className="px-4">
                             <div className="form-group form-theme mb-4">
@@ -135,16 +250,103 @@ function Home() {
                             </div>
                         </Modal.Body>
                         <Modal.Footer className="border-0">
-                            <Button className="w-25" variant="secondary" onClick={toggleResourceModal}>
+                            <Button className="w-25" variant="secondary" onClick={toggleFolderModal}>
                                 Close
                             </Button>
-                            <Button variant="theme" type="submit"
-                                    className="btn btn-theme w-25">Confirm</Button>
+                            <button type="submit" name="signin" id="signin" disabled={isLoading}  className="btn btn-theme w-25" >{isLoading ? 'Saving...' : 'Save'}</button>
                         </Modal.Footer>
                     </form>
                 </Modal>
-                {/*Resource modal end  */}
+                {/*Folder modal end  */}
 
+                {/*Url modal start*/}
+                <Modal show={isUrlModalVisible} onHide={toggleUrlModal} ref={modalRef} centered>
+                    <Modal.Header closeButton className="border-0">
+                        <Modal.Title>New Url</Modal.Title>
+                    </Modal.Header>
+                    <form autoComplete="off" onSubmit={(e) => {
+                        e.preventDefault();
+                        UrlManage();
+                    }}>
+                        <Modal.Body className="px-4">
+                            <div className="form-group form-theme mb-4">
+                                <input type="text" className="form-control ps-0"
+                                       autoComplete='new-title'
+                                       value={urlFormData.title}
+                                       name={'title'}
+                                       onChange={handleInputChangeUrl}
+                                       placeholder="Enter a title."/>
+                                {renderError("title")}
+                            </div>
+                            <div className="form-group form-theme mb-4">
+                                <input type="text" className="form-control ps-0"
+                                       autoComplete='new-url'
+                                       value={urlFormData.url}
+                                       name={'url'}
+                                       onChange={handleInputChangeUrl}
+                                       placeholder="Enter a Url."/>
+                                {renderError("url")}
+                            </div>
+
+                            <div className="form-group form-theme mb-4">
+                                <select  className="form-select form-control ps-0"
+                                         name={'parent_id'}
+                                         value={urlFormData.parent_id}
+                                         onChange={handleInputChangeUrl} >
+                                    <option value="">Select a folder</option>
+                                </select>
+                                {renderError("parent_id")}
+                            </div>
+                        </Modal.Body>
+                        <Modal.Footer className="border-0">
+                            <Button className="w-25" variant="secondary" onClick={toggleUrlModal}>
+                                Close
+                            </Button>
+                            <button type="submit" name="signin" id="signin" disabled={isLoading}  className="btn btn-theme w-25" >{isLoading ? 'Saving...' : 'Save'}</button>
+                        </Modal.Footer>
+                    </form>
+                </Modal>
+                {/*Url modal end  */}
+
+                {/*Edit modal start*/}
+                <Modal show={isEditModalVisible} onHide={toggleEditModal} ref={modalRef} centered>
+                    <Modal.Header closeButton className="border-0">
+                        <Modal.Title>{isFolderOrUrl === false ? 'Edit Folder' : 'Edit Url'}</Modal.Title>
+                    </Modal.Header>
+                    <form autoComplete="off" onSubmit={(e) => {
+                        e.preventDefault();
+                        EditManage();
+                    }}>
+                        <Modal.Body className="px-4">
+                            <div className="form-group form-theme mb-4">
+                                <input type="text" className="form-control ps-0"
+                                       autoComplete='new-title'
+                                       value={editFormData.title}
+                                       name={'title'}
+                                       onChange={handleInputChangeEdit}
+                                       placeholder="Enter a title."/>
+                                {renderError("title")}
+                            </div>
+
+                            <div className="form-group form-theme mb-4">
+                                <select  className="form-select form-control ps-0"
+                                         name={'parent_id'}
+                                         value={editFormData.parent_id}
+                                         onChange={handleInputChangeEdit} >
+                                    <option value="">Select a folder</option>
+                                </select>
+                                {renderError("parent_id")}
+                            </div>
+                        </Modal.Body>
+                        <Modal.Footer className="border-0">
+                            <Button className="w-25" variant="secondary" onClick={toggleEditModal}>
+                                Close
+                            </Button>
+                            <button type="submit" name="signin" id="signin" disabled={isLoading}  className="btn btn-theme w-25" >{isLoading ? 'Saving...' : 'Save'}</button>
+                        </Modal.Footer>
+                    </form>
+                </Modal>
+                {/*Edit modal end  */}
 
             </div>
         </>
