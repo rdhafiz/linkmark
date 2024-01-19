@@ -1,6 +1,6 @@
 // Importing required modules and styles
 import React, { useEffect, useRef, useState } from "react";
-import { getCookie } from "../services/cookies.jsx";
+import {getCookie, setCookie} from "../services/cookies.jsx";
 import api from "../services/api.jsx";
 import { Button, Modal } from 'react-bootstrap';
 
@@ -9,6 +9,11 @@ function Profile() {
     // State variables
     const [formData, setFormData] = useState({
         name: "",
+    });
+    const [passwordFormData, setPasswordFormData] = useState({
+        current_password: "",
+        password: "",
+        password_confirmation: "",
     });
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
@@ -23,9 +28,6 @@ function Profile() {
         if (user) {
             const parsedUser = JSON.parse(user);
             setUserInfo(parsedUser);
-            setFormData({
-                name: parsedUser.name,
-            });
         }
     }, []);
 
@@ -37,6 +39,13 @@ function Profile() {
             [name]: value,
         });
     };
+    const handleInputChangePassoword = (e) => {
+        const { name, value } = e.target;
+        setPasswordFormData({
+            ...passwordFormData,
+            [name]: value,
+        });
+    };
 
     // Handle profile update
     const handleProfileUpdate = async () => {
@@ -44,8 +53,13 @@ function Profile() {
         try {
             setIsLoading(true);
             const result = await api.put('/profile/update', formData);
-            if (result) {
+            if (result.msg) {
                 setIsLoading(false);
+                // Update the user information in cookies after a successful update
+                setCookie('userInfo', JSON.stringify({ ...userInfo, name: formData.name }));
+                // Close the profile modal
+                setProfileModalVisibility(false);
+                setUserInfo({ ...userInfo, name: formData.name })
             } else {
                 setErrors(result);
                 setIsLoading(false);
@@ -56,15 +70,55 @@ function Profile() {
         }
     };
 
+    // Handle password
+    const handlePasswordUpdate = async () => {
+        setErrors({});
+        try {
+            setIsLoading(true);
+            const result = await api.put('/profile/update/password', passwordFormData);
+            if (result.msg) {
+                setIsLoading(false);
+                // Update the user information in cookies after a successful update
+                setPasswordModalVisibility(false);
+            } else {
+                setErrors(result);
+                setIsLoading(false);
+            }
+        } catch (error) {
+            setIsLoading(false);
+            console.error("Error during password update:", error);
+        }
+    };
+
+
     // Toggle profile modal visibility
     const toggleProfileModal = () => {
+        setErrors({});
+        setFormData({
+            name: userInfo.name,
+        });
         setProfileModalVisibility(!isProfileModalVisible);
     };
 
     // Toggle password modal visibility
     const togglePasswordModal = () => {
+        setErrors({});
+        setPasswordFormData( {
+            current_password: '',
+            password: '',
+            password_confirmation: '',
+        })
         setPasswordModalVisibility(!isPasswordModalVisible);
     };
+
+
+    const renderError = (fieldName) => {
+        if (errors[fieldName]) {
+            return <div className="text-danger">{errors[fieldName]}</div>;
+        }
+        return null;
+    };
+
 
     return (
         <>
@@ -149,11 +203,12 @@ function Profile() {
                                     type="text"
                                     className="form-control ps-0"
                                     name="name"
-                                    autoComplete="new name"
+                                    aria-autocomplete='new-name'
                                     value={formData.name}
                                     onChange={handleInputChange}
                                     placeholder="Enter your Name"
                                 />
+                                {renderError("name")}
                             </div>
 
                             {/* Email input */}
@@ -198,33 +253,40 @@ function Profile() {
                     </Modal.Header>
                     {/* Modal form for password change */}
                     <form autoComplete="off" onSubmit={(e) => {
-                        e.preventDefault();
+                        e.preventDefault();handlePasswordUpdate();
                         // Add logic for password change
                     }}>
                         {/* Modal body */}
                         <Modal.Body className="px-4">
                             {/* Current password input */}
                             <div className="form-group form-theme mb-3">
-                                <label htmlFor="password" className="form-label">Current password</label>
+                                <label htmlFor="current_password" className="form-label">Current password</label>
                                 <input
                                     type="password"
                                     className="form-control ps-0"
-                                    name="password"
-                                    autoComplete="new current password"
+                                    name="current_password"
+                                    autoComplete={'new-current_password'}
+                                    value={passwordFormData.current_password}
+                                    onChange={handleInputChangePassoword}
                                     placeholder="Enter your current password"
                                 />
+                                {renderError("current_password")}
                             </div>
 
                             {/* New password input */}
                             <div className="form-group form-theme mb-3">
-                                <label htmlFor="new_password" className="form-label">New password</label>
+                                <label htmlFor="password" className="form-label">New password</label>
                                 <input
                                     type="password"
                                     className="form-control ps-0"
-                                    name="new_password"
-                                    autoComplete="new password"
+                                    name="password"
+                                    autoComplete={'new-password'}
+                                    value={passwordFormData.password}
+                                    onChange={handleInputChangePassoword}
                                     placeholder="Enter new password"
                                 />
+                                {renderError("password")}
+                                {renderError("new_password")}
                             </div>
 
                             {/* Confirm password input */}
@@ -233,10 +295,13 @@ function Profile() {
                                 <input
                                     type="password"
                                     className="form-control ps-0"
-                                    autoComplete="new confirm password"
+                                    autoComplete={'new-password_confirmation'}
+                                    value={passwordFormData.password_confirmation}
+                                    onChange={handleInputChangePassoword}
                                     name="password_confirmation"
                                     placeholder="Confirm new password"
                                 />
+                                {renderError("password_confirmation")}
                             </div>
                         </Modal.Body>
                         {/* Modal footer */}
