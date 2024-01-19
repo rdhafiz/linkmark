@@ -17,6 +17,7 @@
     height: 50px;
     border-radius: 50%;
     overflow: hidden;
+    cursor: pointer;
 
     img {
       border-radius: 50%;
@@ -27,9 +28,18 @@
   }
 
   .header-dropdown {
+    cursor: initial;
     width: 350px;
     right: 10px;
-    top: 90px;
+    top: 70px;
+    li{
+      .dropdown-item{
+        cursor: pointer;
+        &:active{
+          background-color: var(--grey-light);
+        }
+      }
+    }
     @media screen and (max-width: 400px) {
       width: 300px;
     }

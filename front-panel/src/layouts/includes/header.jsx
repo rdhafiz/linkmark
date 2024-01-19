@@ -21,7 +21,7 @@ function Header() {
     return (
         <>
             <div className="header">
-                <div className="container d-flex justify-content-between align-items-center">
+                <div className="container d-flex position-relative justify-content-between align-items-center">
                     <Link to={'/'} className="brand-logo">Linkmark</Link>
 
                     <div  aria-expanded="false" className="avatar"
@@ -34,15 +34,15 @@ function Header() {
                         {isDropdown ? (<>
                             <ul className="dropdown-menu show header-dropdown border-0 shadow rounded-3 p-3">
                                 <li className="d-flex align-items-center justify-content-between mb-4">
-                                    <div className="name fs-5 fw-medium flex-grow-1">{userInfo.name}</div>
+                                    <div className="name fs-5 ps-3 fw-medium flex-grow-1">{userInfo.name}</div>
                                     <div className="drop-avatar">
                                         <img
                                             src={'https://ui-avatars.com/api/?background=6dabe4&color=fff&rounded=true&bold=true&name='+userInfo.name}
                                             alt="avatar"/>
                                     </div>
                                 </li>
-                                <li><Link to={'/profile'} className="dropdown-item rounded-3 mb-2">Profile</Link></li>
-                                <li><a className="dropdown-item rounded-3"  onClick={() => logout()}>Logout</a></li>
+                                <li><Link to={'/profile'} className="dropdown-item p-2 rounded-3 mb-2">Profile</Link></li>
+                                <li><a className="dropdown-item p-2 rounded-3"  onClick={() => logout()}>Logout</a></li>
                             </ul>
                         </>) : <></>}
                         {/*Header dropdown end  */}
