@@ -1,4 +1,5 @@
 $iterationWidthHeight: 1000; //Defines the number of iteration.
+$iterationFontSize: 200; //Defines the number of iteration.
 
 $base-value: 1px; //Defines the base value.
 
@@ -18,5 +19,13 @@ $base-value: 1px; //Defines the base value.
 
   .min-height-#{$i} {
     height: $base-value * $i !important;
+  }
+}
+
+
+/*loop for font size*/
+@for $i from 1 through $iterationFontSize { // loop from 1px to 1000px
+  .font-size-#{$i} {
+    font-size: $base-value * $i !important;
   }
 }

@@ -16,7 +16,7 @@ function Home() {
     const toggleResourceModal = () => {
         setResourceModalVisibility(!isResourceModalVisible);
     };
-    
+
     return (
         <>
             <div className="home container">
