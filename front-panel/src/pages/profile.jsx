@@ -1,19 +1,62 @@
 import '../stylesheets/pages/profile.scss'
 
 // icons
-import {LuUploadCloud} from "react-icons/lu";
-import {useEffect, useState} from "react";
-import {getCookie} from "../services/cookies.jsx";
+import React, {useEffect, useRef, useState} from "react";
+import {getCookie, setCookie} from "../services/cookies.jsx";
+import api from "../services/api.jsx";
+import { Button, Modal } from 'react-bootstrap';
 
 function Profile() {
+    const [formData, setFormData] = useState({
+        name: "",
+    });
+    const [errors, setErrors] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
     const [userInfo, setUserInfo] = useState({});
-    useEffect(() => {
-        // Use the cookie functions to get user info
-        const user = getCookie('userInfo');
+    const [isModalVisible, setModalVisibility] = useState(false);
+    const modalRef = useRef(null);
 
-        // Update userInfo only if user is defined
-        user && setUserInfo(JSON.parse(user));
-    }, []);
+    useEffect(() => {
+        const user = getCookie('userInfo');
+        if (user) {
+            const parsedUser = JSON.parse(user);
+            setUserInfo(parsedUser);
+            setFormData({
+                name: parsedUser.name,
+            });
+
+        }
+    }, [getCookie]);
+
+
+    const handleInputChange = (e) => {
+        const {name, value} = e.target;
+        setFormData({
+            ...formData,
+            [name]: value,
+        });
+    };
+
+    const UpdateProfile = async () => {
+        setErrors({});
+        try {
+            setIsLoading(true);
+            const result = await api.put('/profile/update', formData);
+            if (result) {
+                setIsLoading(false);
+            } else {
+                setErrors(result);
+                setIsLoading(false);
+            }
+        } catch (error) {
+            setIsLoading(false);
+            console.error("Error during login:", error);
+        }
+    };
+    const toggleModal = () => {
+        setModalVisibility(!isModalVisible);
+    };
+
     return (
         <>
             <div className="profile container">
@@ -26,7 +69,7 @@ function Profile() {
                         <div className="d-flex justify-content-center align-items-center">
                             <div className="profile-img-wrap mb-5">
                                 <img
-                                    src={'https://ui-avatars.com/api/?background=6dabe4&color=fff&rounded=true&bold=true&name='+userInfo.name}
+                                    src={'https://ui-avatars.com/api/?background=6dabe4&color=fff&rounded=true&bold=true&name=' + userInfo.name}
                                     alt="avatar"/>
                             </div>
                         </div>
@@ -44,8 +87,7 @@ function Profile() {
                         </div>
 
                         <div className="d-flex">
-                            <button type="button" className="btn btn-theme w-50 me-3" data-bs-toggle="modal"
-                                    data-bs-target="#editProfile">Edit Profile
+                            <button type="button" className="btn btn-theme w-50 me-3" onClick={(e) => toggleModal()}>Edit Profile
                             </button>
 
                             <button type="button" className="btn btn-theme w-50" data-bs-toggle="modal"
@@ -57,8 +99,8 @@ function Profile() {
                 </div>
 
                 {/*Edit profile modal start*/}
-                <div className="modal fade" id="editProfile" tabIndex="-1" aria-labelledby="editProfileLabel"
-                     aria-hidden="true">
+           {/*     <div ref={modalRef} className={`modal fade`} id="editProfile" tabIndex="-1" aria-labelledby="editProfileLabel"
+                     aria-hidden={!isModalVisible} onClick={() => toggleModal()}>
                     <div className="modal-dialog modal-dialog-centered">
                         <div className="modal-content">
                             <div className="modal-header border-0">
@@ -66,18 +108,19 @@ function Profile() {
                                 <button type="button" className="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                             </div>
-                            <form action="">
+                            <form onSubmit={(e) => {e.preventDefault();UpdateProfile();}}>
                                 <div className="modal-body px-4">
 
                                     <div className="form-group d-flex justify-content-center align-items-center mb-4">
                                         <img className="modal-profile-img"
-                                             src="https://ui-avatars.com/api/?background=6dabe4&color=fff&rounded=true&bold=true&name=R+C"
+                                             src={'https://ui-avatars.com/api/?background=6dabe4&color=fff&rounded=true&bold=true&name=' + userInfo.name}
                                              alt="avatar"/>
                                     </div>
 
                                     <div className="form-group form-theme mb-3">
                                         <label htmlFor="" className="form-label">Name</label>
                                         <input type="text" className="form-control ps-0" name="name"
+                                               value={formData.name} onChange={handleInputChange}
                                                placeholder="Enter your Name"/>
                                     </div>
 
@@ -86,21 +129,35 @@ function Profile() {
                                         <label htmlFor="" className="form-label">E-mail</label>
                                         <input type="text" className="form-control bg-white ps-0" name="email"
                                                placeholder="Enter your email address" readOnly disabled
-                                               value="rahatchowdhury@gmail.com"/>
+                                               value={userInfo.email}/>
                                     </div>
-
-
                                 </div>
-                                <div className="modal-footer border-0">
-                                    <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cancel
-                                    </button>
-                                    <button type="button" className="btn btn-theme">Confirm</button>
+                                <div className="modal-footer border-0 d-flex">
+                                    <button type="button" className="btn btn-secondary w-25" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" name="signin" id="signin" disabled={isLoading} className="btn btn-theme w-25 " >{isLoading ? 'Saving...' : 'Save'}</button>
                                 </div>
                             </form>
                         </div>
                     </div>
-                </div>
+                </div>*/}
                 {/*Edit profile modal end  */}
+                <Modal show={isModalVisible} onHide={toggleModal} ref={modalRef}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>My Modal</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        {/* Add modal content here */}
+                        <p>This is the modal content.</p>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={toggleModal}>
+                            Close
+                        </Button>
+                        <Button variant="primary" onClick={toggleModal}>
+                            Save Changes
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
 
                 {/*Change Password modal start*/}
                 <div className="modal fade" id="changePassword" tabIndex="-1" aria-labelledby="changePasswordLabel"
