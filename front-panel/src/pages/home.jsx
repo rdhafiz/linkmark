@@ -12,10 +12,9 @@ import api from "../services/api.jsx";
 import {setCookie} from "../services/cookies.jsx";
 
 function Home() {
-    const [formData, setFormData] = useState({
+    const [folderFormData, setFolderFormData] = useState({
         title: "",
         parent_id: '0',
-        url: "",
     });
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
@@ -30,8 +29,8 @@ function Home() {
     // Handle input change
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData({
-            ...formData,
+        setFolderFormData({
+            ...folderFormData,
             [name]: value,
         });
     };
@@ -39,7 +38,7 @@ function Home() {
         setErrors({});
         try {
             setIsLoading(true);
-            const result = await api.post('/resource/create', formData);
+            const result = await api.post('/resource/create', folderFormData);
             if (result.data) {
                 setIsLoading(false);
                 toggleResourceModal();
@@ -62,10 +61,9 @@ function Home() {
     };
 
     const resetForm = () => {
-        setFormData({
+        setFolderFormData({
             title: "",
             parent_id: '0',
-            url: "",
         })
     }
 
@@ -109,7 +107,7 @@ function Home() {
                 {/*Resource modal start*/}
                 <Modal show={isResourceModalVisible} onHide={toggleResourceModal} ref={modalRef} centered>
                     <Modal.Header closeButton className="border-0">
-                        <Modal.Title>New Bookmark</Modal.Title>
+                        <Modal.Title>New Folder</Modal.Title>
                     </Modal.Header>
                     <form autoComplete="off" onSubmit={(e) => {
                         e.preventDefault();
@@ -119,7 +117,7 @@ function Home() {
                             <div className="form-group form-theme mb-4">
                                 <input type="text" className="form-control ps-0"
                                        autoComplete='new-title'
-                                       value={formData.title}
+                                       value={folderFormData.title}
                                        name={'title'}
                                        onChange={handleInputChange}
                                        placeholder="Enter a title."/>
@@ -127,19 +125,9 @@ function Home() {
                             </div>
 
                             <div className="form-group form-theme mb-4">
-                                <input type="text" className="form-control ps-0"
-                                       autoComplete='new-url'
-                                       name={'url'}
-                                       value={formData.url}
-                                       onChange={handleInputChange}
-                                       placeholder="Enter URL"/>
-                                {renderError("url")}
-                            </div>
-
-                            <div className="form-group form-theme mb-4">
                                 <select  className="form-select form-control ps-0"
                                         name={'parent_id'}
-                                        value={formData.parent_id}
+                                        value={folderFormData.parent_id}
                                         onChange={handleInputChange} >
                                     <option value="">Select a folder</option>
                                 </select>
