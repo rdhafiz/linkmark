@@ -203,7 +203,7 @@ function Profile() {
                                     type="text"
                                     className="form-control ps-0"
                                     name="name"
-                                    aria-autocomplete='new-name'
+                                    autoComplete='new-name'
                                     value={formData.name}
                                     onChange={handleInputChange}
                                     placeholder="Enter your Name"
