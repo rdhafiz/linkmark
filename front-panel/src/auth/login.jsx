@@ -7,7 +7,7 @@ import { setCookie } from '../services/cookies.jsx';
 
 
 // Link to replace anchor tag <a></a>
-import {Link} from "react-router-dom";
+import {Link, Navigate, redirect, useNavigate} from "react-router-dom";
 import api from "../services/api.jsx";
 
 const Login = () => {
@@ -17,6 +17,8 @@ const Login = () => {
     });
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
+
+    const navigate = useNavigate()
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -33,6 +35,8 @@ const Login = () => {
             if (result.access_token) {
                 setIsLoading(false);
                 setCookie('authToken', result.access_token, { expires: 7 });
+                setCookie('userInfo', JSON.stringify(result.data), { expires: 7 });
+                navigate("/")
             } else {
                 setErrors(result);
                 setIsLoading(false);
@@ -67,13 +71,13 @@ const Login = () => {
                         {renderError("password")}
                     </div>
                     <div className="form-group text-end mb-3">
-                        <Link  to={'/forgot'}>Forgot Password</Link>
+                        <Link  to={'/auth/forgot'}>Forgot Password</Link>
                     </div>
                     <div className="form-group text-start mb-3">
                         <button type="submit" name="signin" id="signin" disabled={isLoading} className="btn btn-theme btn-auth w-100" >{isLoading ? 'Signing in...' : 'Sign In'}</button>
                     </div>
                     <div className="form-group text-center mb-3">
-                        Do not have an account? <Link  to={'/register'}> Register Now</Link>
+                        Do not have an account? <Link  to={'/auth/register'}> Register Now</Link>
                     </div>
                 </form>
             </div>

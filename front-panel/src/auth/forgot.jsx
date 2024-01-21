@@ -140,7 +140,7 @@ const Forgot = () => {
 
                             <div className="form-group text-center">
                                 <p>Remembered your password?</p>
-                                <Link to={'/'}>Back to Login</Link>
+                                <Link to={'/auth/login'}>Back to Login</Link>
                             </div>
                         </form>
                     </>
@@ -150,7 +150,7 @@ const Forgot = () => {
                         <div className={'text-center'}>
                             <h6 className="form-title">Password has been updated successfully.</h6>
                             <div className="form-group text-center">
-                                <Link to={'/'}>Back to Login</Link>
+                                <Link to={'/auth/login'}>Back to Login</Link>
                             </div>
                         </div>
                     </>
