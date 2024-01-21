@@ -1,7 +1,7 @@
 import '../../stylesheets/layout/includes/header.scss'
 import React, {useEffect, useRef, useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
-import {removeCookie, getCookie} from "../../services/cookies.jsx";
+import {removeCookie, getCookie, setCookie} from "../../services/cookies.jsx";
 import {Button, Modal} from "react-bootstrap";
 
 // icons
@@ -11,6 +11,7 @@ import api from "../../services/api.jsx";
 function Header() {
     const [isDropdown, setIsDropdown] = useState(false);
     const [userInfo, setUserInfo] = useState({});
+    const [activationForm, setActivationForm] = useState({});
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate()
@@ -23,6 +24,7 @@ function Header() {
         setActivationWarningModalVisibility(!isActivationWarningModalVisible);
         if (val === true) {
             toggleActivation()
+            handleResendCode();
         }
     };
     const toggleActivation = () => {
@@ -39,24 +41,25 @@ function Header() {
         if (user !== undefined) {
             const parsedUser = JSON.parse(user);
             setUserInfo(parsedUser);
-
-            if (parsedUser.activation === 0) {
+            if (parsedUser.activation == 0) {
                 toggleActivationWarning();
             }
         }
-    }, []); // The empty dependency array ensures the effect runs only once, similar to componentDidMount
+    }, []);
 
 
     // Resend activation code handler
-    const handleResendCode = async () => {
+    const handleResendCode = async (show) => {
         setErrors({});
         try {
             setIsLoading(true);
             const result = await api.get('/profile/activation/resend');
             if (result.msg) {
                 setIsLoading(false);
-                // Update the user information in cookies after a successful update
-                toggleActivation();
+                if(show == true){
+                    await toggleActivation()
+                    await toggleActivationWarning()
+                }
             } else {
                 setErrors(result);
                 setIsLoading(false);
@@ -66,6 +69,46 @@ function Header() {
             console.error("Error during resend code:", error);
         }
     };
+    const activationAccount = async () => {
+        setErrors({});
+        try {
+            setIsLoading(true);
+            const result = await api.post('/profile/activate',activationForm);
+            if (result.msg) {
+                setIsLoading(false);
+                await getUserInfo()
+                await toggleActivation()
+            } else {
+                setErrors(result);
+                setIsLoading(false);
+            }
+        } catch (error) {
+            setIsLoading(false);
+            console.error("Error during resend code:", error);
+        }
+    };
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setActivationForm({
+            ...activationForm,
+            [name]: value,
+        });
+    };
+
+    const getUserInfo = async () => {
+        try {
+            const result = await api.get('/profile/me');
+            if (result.data) {
+                // Update the user information in cookies after a successful update
+                setCookie('userInfo', JSON.stringify({ ...result.data }));
+            } else {
+
+            }
+        } catch (error) {
+            setIsLoading(false);
+            console.error("Error during get profile:", error);
+        }
+    }
 
     return (
         <>
@@ -121,9 +164,8 @@ function Header() {
                     <Button className="w-25" variant="secondary" onClick={toggleActivationWarning}>
                         Close
                     </Button>
-                    <Button variant="theme" type="submit"
-                            className="btn btn-theme w-25"
-                            onClick={() => toggleActivationWarning(true)}>Activate</Button>
+                    <button type="button" name="activation"  disabled={isLoading}   onClick={() => handleResendCode(true)}
+                            className="btn btn-theme w-25">{isLoading ? 'Sending...' : 'Activate'}</button>
                 </Modal.Footer>
             </Modal>
             {/*Resource modal end  */}
@@ -138,7 +180,7 @@ function Header() {
                     <Modal.Body className="px-4">
                         <div className="form-group form-theme mb-4">
                             <label htmlFor="" className="form-label">Activation code</label>
-                            <input type="text" className="form-control ps-0" placeholder="Enter Activation code."/>
+                            <input type="text" className="form-control ps-0" name={'activation_code'} placeholder="Enter Activation code." value={activationForm.activation_code} onChange={handleInputChange}/>
                         </div>
 
                         <a href="" className="resend d-block text-end" onClick={() => handleResendCode}>Resend Code</a>
@@ -147,8 +189,8 @@ function Header() {
                         <Button className="w-25" variant="secondary" onClick={toggleActivation}>
                             Close
                         </Button>
-                        <Button variant="theme" type="submit"
-                                className="btn btn-theme w-25">Activate</Button>
+                        <button type="button" name="activation"  disabled={isLoading}   onClick={() => activationAccount()}
+                                className="btn btn-theme w-25">{isLoading ? 'Activating...' : 'Activate'}</button>
                     </Modal.Footer>
                 </form>
             </Modal>
