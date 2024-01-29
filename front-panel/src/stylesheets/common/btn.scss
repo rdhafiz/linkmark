@@ -2,8 +2,17 @@
   background: var(--blue-color);
   color: var(--white);
   @include border-radius(5px);
+  border: none;
   cursor: pointer;
   &:hover {
+    color: var(--white);
+    background: darken(#6dabe4, 10%);
+  }
+  &:active {
+    color: var(--white);
+    background: darken(#6dabe4, 10%);
+  }
+  &:focus {
     color: var(--white);
     background: darken(#6dabe4, 10%);
   }

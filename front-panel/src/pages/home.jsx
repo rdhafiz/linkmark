@@ -5,7 +5,10 @@ import '../stylesheets/pages/home.scss'
 
 // icons
 import {FaPlus} from "react-icons/fa6";
-import {Button, Modal} from "react-bootstrap";
+import { FaBoxOpen } from "react-icons/fa";
+
+
+import {Button, Modal, Dropdown} from "react-bootstrap";
 import api from "../services/api.jsx";
 import Link from "../components/Link.jsx";
 import Folder from "../components/Folder.jsx";
@@ -309,22 +312,38 @@ function Home() {
                             ))}
                         </ul>
                     </div>
-                    <div>
-                        <button type="button" className="btn btn-theme width-150 me-3"
-                                onClick={() => toggleFolderModal()}>Add Folder <i><FaPlus/></i></button>
-                        <button type="button" className="btn btn-theme width-150" onClick={() => toggleUrlModal()}>Add
-                            URL <i><FaPlus/></i></button>
+                    <div className={'options'}>
+                        <Dropdown>
+                            <Dropdown.Toggle variant="primary" className={'btn btn-theme width-150'} id="dropdown-basic">
+                                New <i><FaPlus/></i>
+                            </Dropdown.Toggle>
+
+                            <Dropdown.Menu>
+                                <Dropdown.Item  onClick={() => toggleFolderModal()}>Add Folder</Dropdown.Item>
+                                <Dropdown.Item onClick={() => toggleUrlModal()}>Add Url</Dropdown.Item>
+                            </Dropdown.Menu>
+                        </Dropdown>
                     </div>
                 </div>
 
-                <div className="home-content p-3">
-                    {/*Link*/}
-                    {listData.map((data, index) => (
-                        data.is_dir === 0 ? (
-                            <Link key={index} item={data} toggleEditModal={toggleEditModal} deleteModal={toggleDeleteModal}/>
-                        ) : <Folder key={index} item={data} toggleEditModal={toggleEditModal} openFolder={openFolder} deleteModal={toggleDeleteModal}/>
-                    ))}
-                </div>
+                {listData.length > 0 ? (
+                    <div className="home-content p-3">
+                        {/*Link*/}
+                        {listData.map((data, index) => (
+                            data.is_dir === 0 ? (
+                                <Link key={index} item={data} toggleEditModal={toggleEditModal} deleteModal={toggleDeleteModal}/>
+                            ) : <Folder key={index} item={data} toggleEditModal={toggleEditModal} openFolder={openFolder} deleteModal={toggleDeleteModal}/>
+                        ))}
+                    </div>
+                ) : (
+                    <>
+                        <div className="no-data-found p-3">
+                            <div className="icon"><FaBoxOpen /></div>
+                            <div className={'fs-5'}>Currently you do not have any folder or url</div>
+                            <div  className={'fs-6'}>Please click on &ldquo; <span className={'text-blue'}>New+</span> &ldquo; to create folder or add url</div>
+                        </div>
+                    </>
+                )}
 
 
                 {/*Folder modal start*/}
