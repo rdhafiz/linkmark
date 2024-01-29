@@ -8,6 +8,7 @@ import Alert from 'react-bootstrap/Alert';
 // icons
 import {IoWarningOutline} from "react-icons/io5";
 import api from "../../services/api.jsx";
+import {renderError} from "../../services/RenderError.jsx";
 
 function Header() {
     const [isDropdown, setIsDropdown] = useState(false);
@@ -19,6 +20,8 @@ function Header() {
     const modalRef = useRef(null);
     const [resendButtonDisabled, setResendButtonDisabled] = useState(false);
     const [countdown, setCountdown] = useState(30);
+    const [isResetLoading, setIsResetLoading] = useState(false);
+    const [msg, setMsg] = useState(null);
 
 
     const [isActivationModalVisible, setActivationModalVisibility] = useState(false);
@@ -31,6 +34,9 @@ function Header() {
         }
     };
     const toggleActivation = () => {
+        setMsg(null);
+        setErrors({});
+        resetActivationForm()
         if (isActivationWarningModalVisible) {
             setActivationWarningModalVisibility(!isActivationWarningModalVisible);
         }
@@ -41,6 +47,9 @@ function Header() {
         removeCookie('authToken')
         navigate("/auth/login")
     }
+    const resetActivationForm = () => {
+        setActivationForm({activation_code:''})
+    }
 
     useEffect(() => {
         const user = getCookie('userInfo');
@@ -50,15 +59,17 @@ function Header() {
             if (parsedUser.activation === 0) {
                 toggleActivationWarning();
             }
-            console.log(parsedUser)
         }
+    }, []);
 
+    useEffect(() => {
         let timer;
-
         if (resendButtonDisabled) {
             timer = setInterval(() => {
                 setCountdown((prevCountdown) => (prevCountdown > 0 ? prevCountdown - 1 : 0));
             }, 1000);
+        }else{
+            setMsg(null);
         }
 
         return () => {
@@ -66,31 +77,32 @@ function Header() {
         };
     }, [resendButtonDisabled]);
 
-
     // Resend activation code handler
     const handleResendCode = async () => {
-        console.log(123)
         setErrors({});
-        setIsLoading(true);
+        setMsg(null);
+        setIsResetLoading(true);
 
-        // Disable the button for 30 seconds
-        setResendButtonDisabled(true);
-        setCountdown(30);
-
-        setTimeout(() => {
-            setResendButtonDisabled(false);
-        }, 30000);
 
         try {
             const result = await api.get('/profile/activation/resend');
             if (result.msg) {
-                setIsLoading(false);
+                setIsResetLoading(false);
+                setMsg(result.msg);
+
+                // Disable the button for 30 seconds
+                setResendButtonDisabled(true);
+                setCountdown(30);
+
+                setTimeout(() => {
+                    setResendButtonDisabled(false);
+                }, 30000);
             } else {
                 setErrors(result);
-                setIsLoading(false);
+                setIsResetLoading(false);
             }
         } catch (error) {
-            setIsLoading(false);
+            setIsResetLoading(false);
             console.error("Error during resend code:", error);
         }
     };
@@ -178,10 +190,10 @@ function Header() {
             <Modal show={isActivationWarningModalVisible} onHide={toggleActivationWarning} ref={modalRef} centered>
                 <Modal.Body className="px-4 text-center">
                     <i className="font-size-100 text-warning mb-4"><IoWarningOutline/></i>
-                    <Alert key={'warning'} variant={'warning'}>
+                    <Alert key={'warning'} variant={'warning'} className={'fs-6'}>
                         Verification code has been sent to your email address.
                     </Alert>
-                    <p className="fs-6">Please activate your account within 24 hours
+                    <p className="">Please activate your account within 24 hours
                         otherwise your account will be deleted.</p>
                 </Modal.Body>
                 <Modal.Footer className="border-0 pb-5 justify-content-center">
@@ -207,16 +219,29 @@ function Header() {
                             <input type="text" className="form-control ps-0" name={'activation_code'}
                                    placeholder="Enter Activation code." value={activationForm.activation_code}
                                    onChange={handleInputChange}/>
+                            {renderError("activation_code", errors)}
                         </div>
 
+                        {/*Resend code message*/}
+                        {msg != null ? (
+                            <Alert key={'warning'} variant={'warning'} className={'text-center'}>
+                                {msg}
+                            </Alert>
+                        ) : ''}
                         {/*Resend code*/}
                         <div className="form-group text-center">
                             <span>
-                                If you did not receive any email, please{' '}
-                                <a className={`resend text-end cursor-pointer ${resendButtonDisabled ? 'disabled text-secondary' : ''}`}
-                                   onClick={() => handleResendCode()}>
-                                    Resend Code
-                                </a>
+
+                                {!isResetLoading ? (
+                                    <span>
+                                        If you did not receive any email, please {' '}
+                                        <a className={`resend text-end cursor-pointer ${resendButtonDisabled ? 'disabled text-secondary' : ''}`}
+                                           onClick={() => handleResendCode()}>
+                                        Resend Code
+                                    </a>
+                                    </span>
+                                ) : 'Sending...'}
+
                                 {resendButtonDisabled && <span className="countdown"> ({countdown}s)</span>}
                             </span>
                         </div>
