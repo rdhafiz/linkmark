@@ -1,30 +1,23 @@
-import React, {useEffect, useRef, useState} from "react";
+import  {useEffect, useRef, useState} from "react";
 
 
 import '../stylesheets/pages/home.scss'
 
 // icons
-import {IoLink} from "react-icons/io5";
-import {FcFolder} from "react-icons/fc";
 import {FaPlus} from "react-icons/fa6";
 import {Button, Modal} from "react-bootstrap";
 import api from "../services/api.jsx";
-import {setCookie} from "../services/cookies.jsx";
 import Link from "../components/Link.jsx";
 import Folder from "../components/Folder.jsx";
 import {MdDeleteForever} from "react-icons/md";
+import {renderError} from "../services/RenderError.jsx";
 
 function Home() {
     /*Global*/
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const modalRef = useRef(null);
-    const renderError = (fieldName) => {
-        if (errors[fieldName]) {
-            return <div className="text-danger">{errors[fieldName]}</div>;
-        }
-        return null;
-    };
+
     const [globalFormData, setGlobalFormData] = useState({
         parent_id: '0',
         history: [
@@ -116,10 +109,10 @@ function Home() {
         }
     };
     const resetFormUrl = () => {
-        setFolderFormData({
+        setUrlFormData({
             title: "",
-            url: '',
             parent_id: globalFormData.parent_id,
+            url: '',
         })
     }
 
@@ -351,7 +344,7 @@ function Home() {
                                        name={'title'}
                                        onChange={handleInputChange}
                                        placeholder="Enter a title."/>
-                                {renderError("title")}
+                                {renderError("title", errors)}
                             </div>
 
                         </Modal.Body>
@@ -383,7 +376,8 @@ function Home() {
                                        name={'title'}
                                        onChange={handleInputChangeUrl}
                                        placeholder="Enter a title."/>
-                                {renderError("title")}
+
+                                {renderError("title", errors)}
                             </div>
                             <div className="form-group form-theme mb-4">
                                 <input type="text" className="form-control ps-0"
@@ -392,7 +386,7 @@ function Home() {
                                        name={'url'}
                                        onChange={handleInputChangeUrl}
                                        placeholder="Enter a Url."/>
-                                {renderError("url")}
+                                {renderError("url", errors)}
                             </div>
 
                         </Modal.Body>
@@ -424,7 +418,7 @@ function Home() {
                                        name={'title'}
                                        onChange={handleInputChangeEdit}
                                        placeholder="Enter a title."/>
-                                {renderError("title")}
+                                {renderError("title", errors)}
                             </div>
 
                         </Modal.Body>
