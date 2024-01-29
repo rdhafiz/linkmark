@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api.jsx";
 import { renderError } from '../services/RenderError.jsx';
 import { handleInputChange } from '../services/InputUtils.jsx';
+import {setCookie} from "../services/cookies.jsx";
 
 const Login = () => {
     const navigate = useNavigate();
