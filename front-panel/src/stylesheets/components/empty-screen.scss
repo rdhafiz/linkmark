@@ -1,0 +1,16 @@
+
+.empty-screen{
+  width: 100%;
+  height: calc(100vh - 190px);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  .icon{
+    svg{
+      font-size: 90px;
+      fill: var(--blue-color);
+    }
+  }
+}

@@ -5,16 +5,16 @@ import '../stylesheets/pages/home.scss'
 
 // icons
 import {FaPlus} from "react-icons/fa6";
-import { FaBoxOpen } from "react-icons/fa";
 
 
 import {Button, Modal, Dropdown} from "react-bootstrap";
 import api from "../services/api.jsx";
-import Link from "../components/Link.jsx";
-import Folder from "../components/Folder.jsx";
 import {MdDeleteForever} from "react-icons/md";
 import {renderError} from "../services/RenderError.jsx";
-
+import EmptyScreen from "../components/Empty-screen.jsx";
+import { FaFolder } from "react-icons/fa";
+import { HiOutlineDotsVertical } from "react-icons/hi";
+import Folder from "../components/Folder.jsx";
 function Home() {
     /*Global*/
     const [errors, setErrors] = useState({});
@@ -298,11 +298,12 @@ function Home() {
     useEffect(() => {
         fetchListData();
     }, []);
+
     return (
         <>
             <div className="home container">
 
-                <div className="mx-3 my-4 d-flex justify-content-between align-items-center">
+                <div className=" my-4 d-flex justify-content-between align-items-center">
                     <div className="history">
                         <ul>
                             {globalFormData.history.map((data, index) => (
@@ -327,22 +328,20 @@ function Home() {
                 </div>
 
                 {listData.length > 0 ? (
-                    <div className="home-content p-3">
-                        {/*Link*/}
-                        {listData.map((data, index) => (
-                            data.is_dir === 0 ? (
-                                <Link key={index} item={data} toggleEditModal={toggleEditModal} deleteModal={toggleDeleteModal}/>
-                            ) : <Folder key={index} item={data} toggleEditModal={toggleEditModal} openFolder={openFolder} deleteModal={toggleDeleteModal}/>
-                        ))}
+                    <div className="home-content ">
+                        {/*Folder*/}
+                        <div className="section">
+                            <div className="section-title">Folders</div>
+                            <div className="folder">
+                                {listData.map((data, index) => (
+                                    <Folder key={index} item={data} toggleEditModal={toggleEditModal} openFolder={openFolder} deleteModal={toggleDeleteModal}/>
+                                ))}
+                            </div>
+                        </div>
+
                     </div>
                 ) : (
-                    <>
-                        <div className="no-data-found p-3">
-                            <div className="icon"><FaBoxOpen /></div>
-                            <div className={'fs-5'}>Currently you do not have any folder or url</div>
-                            <div  className={'fs-6'}>Please click on &ldquo; <span className={'text-blue'}>New+</span> &ldquo; to create folder or add url</div>
-                        </div>
-                    </>
+                    <EmptyScreen title={'Currently you do not have any folder or url'} />
                 )}
 
 
