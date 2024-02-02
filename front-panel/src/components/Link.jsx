@@ -1,6 +1,7 @@
 import {IoLink} from "react-icons/io5";
 import React from "react";
 import {MdDeleteForever, MdEdit} from "react-icons/md";
+import '../stylesheets/components/links.scss'
 
 const Link = (props) => {
     const { item, toggleEditModal,deleteModal } = props;
@@ -25,7 +26,7 @@ const Link = (props) => {
 
 
                 </div>
-                <div className="link-box-content p-3 bg-dark rounded-bottom-3">
+                <div className="link-box-content p-3  rounded-bottom-3">
                     <h5 className="title fw-bold">{item.title}</h5>
                     {item.preview != null && item.preview.description != null ? (
                         <p className="small desc mb-2 show-2-line">{item.preview.description}</p>

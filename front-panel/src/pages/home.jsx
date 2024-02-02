@@ -1,4 +1,4 @@
-import  {useEffect, useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 
 
 import '../stylesheets/pages/home.scss'
@@ -12,9 +12,9 @@ import api from "../services/api.jsx";
 import {MdDeleteForever} from "react-icons/md";
 import {renderError} from "../services/RenderError.jsx";
 import EmptyScreen from "../components/Empty-screen.jsx";
-import { FaFolder } from "react-icons/fa";
-import { HiOutlineDotsVertical } from "react-icons/hi";
 import Folder from "../components/Folder.jsx";
+import Link from '../components/Link.jsx'
+
 function Home() {
     /*Global*/
     const [errors, setErrors] = useState({});
@@ -56,7 +56,7 @@ function Home() {
                 setIsLoading(false);
                 toggleFolderModal();
                 resetFormFolder()
-                await fetchListData()
+                await fetchFolderData()
             } else {
                 setErrors(result);
                 setIsLoading(false);
@@ -101,7 +101,7 @@ function Home() {
                 setIsLoading(false);
                 toggleUrlModal();
                 resetFormUrl()
-                fetchListData()
+                fetchUrlData()
             } else {
                 setErrors(result);
                 setIsLoading(false);
@@ -154,7 +154,7 @@ function Home() {
             if (result.msg) {
                 setIsLoading(false);
                 resetFormUrl()
-                await fetchListData()
+                await fetchUrlData()
                 await toggleEditModal()
             } else {
                 setErrors(result);
@@ -175,13 +175,14 @@ function Home() {
 
     /*List*/
     const [isListLoading, setIsListLoading] = useState(false);
+    const [folderData, setFolderData] = useState([]);
     const [listData, setListData] = useState([]);
     const [listFormData, setListFormData] = useState({
         page: 1,
         limit: 20,
         parent_id: globalFormData.parent_id,
     });
-    const fetchListData = async (data = null) => {
+    const fetchUrlData = async (data = null) => {
         try {
             let formData = {
                 limit: listFormData.limit,
@@ -210,6 +211,37 @@ function Home() {
             console.error("Error during list retrieval:", error);
         }
     };
+    const fetchFolderData = async (data = null) => {
+        try {
+            let formData = {
+                limit: listFormData.limit,
+                page: listFormData.page,
+                parent_id: listFormData.parent_id,
+                is_dir: 1,
+            }
+            if (data != null) {
+                formData = {
+                    limit: data.limit,
+                    page: data.page,
+                    parent_id: data.parent_id,
+                    is_dir: 1,
+                }
+                setListFormData(formData)
+            }
+            setIsListLoading(true);
+            const result = await api.get(`/resource/all?page=${formData.page}&limit=${formData.limit}&parent_id=${formData.parent_id}&is_dir=1`);
+            if (result.data) {
+                setFolderData(result.data);
+                setIsListLoading(false);
+            } else {
+                setErrors(result);
+                setIsListLoading(false);
+            }
+        } catch (error) {
+            setIsListLoading(false);
+            console.error("Error during list retrieval:", error);
+        }
+    };
     const openFolder = async (data) => {
         try {
             // Update list data for the new folder
@@ -219,20 +251,21 @@ function Home() {
                 parent_id: data._id,
             };
 
-            await fetchListData(formData);
+            await fetchFolderData(formData);
+            await fetchUrlData(formData);
 
             // Update form data for folder and URL
-            setFolderFormData((prevData) => ({ ...prevData, parent_id: formData.parent_id }));
-            setUrlFormData((prevData) => ({ ...prevData, parent_id: formData.parent_id }));
+            setFolderFormData((prevData) => ({...prevData, parent_id: formData.parent_id}));
+            setUrlFormData((prevData) => ({...prevData, parent_id: formData.parent_id}));
 
             // Update global form data and history
             setGlobalFormData((prevGlobalData) => {
-                const newHistoryItem = { parent_id: formData.parent_id, title: data.title };
+                const newHistoryItem = {parent_id: formData.parent_id, title: data.title};
                 const newHistory = Array.isArray(prevGlobalData.history)
                     ? [...prevGlobalData.history, newHistoryItem]
                     : [newHistoryItem];
 
-                return { parent_id: formData.parent_id, history: newHistory };
+                return {parent_id: formData.parent_id, history: newHistory};
             });
         } catch (error) {
             console.error("Error opening folder:", error);
@@ -240,25 +273,29 @@ function Home() {
         }
     };
     const changeFolder = async (index) => {
-        const formData = {
+        const  formData = {
             limit: listFormData.limit,
             page: listFormData.page,
             parent_id: globalFormData.history[index].parent_id,
         };
-        setListFormData({...listFormData,parent_id: formData.parent_id})
-        setFolderFormData((prevData) => ({ ...prevData, parent_id: formData.parent_id }));
-        setUrlFormData((prevData) => ({ ...prevData, parent_id: formData.parent_id }));
 
-        setGlobalFormData((prevGlobalData) => {
+        await setGlobalFormData((prevGlobalData) => {
             // Ensure history is an array
             const historyArray = Array.isArray(prevGlobalData.history) ? prevGlobalData.history : [];
 
             // Remove items starting from the specified index
             const newHistory = historyArray.slice(0, index + 1);
 
-            return { ...prevGlobalData, history: newHistory };
+            return {...prevGlobalData, history: newHistory};
         });
-        await fetchListData(formData)
+        
+         setListFormData({...listFormData, parent_id: formData.parent_id})
+        await setListFormData({...listFormData, parent_id: formData.parent_id})
+        await setFolderFormData((prevData) => ({...prevData, parent_id: formData.parent_id}));
+        await setUrlFormData((prevData) => ({...prevData, parent_id: formData.parent_id}));
+
+        await fetchUrlData(formData)
+        await fetchFolderData(formData)
     };
 
     /*Delete*/
@@ -267,7 +304,7 @@ function Home() {
     const [deletedId, setDeletedId] = useState('');
 
     const toggleDeleteModal = (data = null, type = 'folder') => {
-        if(data != null){
+        if (data != null) {
             setDeletedId(data._id)
             if (type === 'folder') {
                 setDeleteMsg('Are you sure you want to delete this folder ?')
@@ -283,7 +320,7 @@ function Home() {
             const result = await api.delete(`/resource/delete/${deletedId}`, editFormData);
             if (result.msg) {
                 setIsLoading(false);
-                await fetchListData()
+                await fetchUrlData()
                 await toggleDeleteModal()
             } else {
                 setIsLoading(false);
@@ -296,7 +333,8 @@ function Home() {
 
 
     useEffect(() => {
-        fetchListData();
+        fetchUrlData();
+        fetchFolderData();
     }, []);
 
     return (
@@ -315,34 +353,54 @@ function Home() {
                     </div>
                     <div className={'options'}>
                         <Dropdown>
-                            <Dropdown.Toggle variant="primary" className={'btn btn-theme width-150'} id="dropdown-basic">
+                            <Dropdown.Toggle variant="primary" className={'btn btn-theme width-150'}
+                            >
                                 New <i><FaPlus/></i>
                             </Dropdown.Toggle>
 
                             <Dropdown.Menu>
-                                <Dropdown.Item  onClick={() => toggleFolderModal()}>Add Folder</Dropdown.Item>
+                                <Dropdown.Item onClick={() => toggleFolderModal()}>Add Folder</Dropdown.Item>
                                 <Dropdown.Item onClick={() => toggleUrlModal()}>Add Url</Dropdown.Item>
                             </Dropdown.Menu>
                         </Dropdown>
                     </div>
                 </div>
 
-                {listData.length > 0 ? (
-                    <div className="home-content ">
-                        {/*Folder*/}
+
+                <div className="home-content ">
+                    {/*Folder*/}
+                    {folderData.length > 0 ? (
                         <div className="section">
                             <div className="section-title">Folders</div>
                             <div className="folder">
-                                {listData.map((data, index) => (
-                                    <Folder key={index} item={data} toggleEditModal={toggleEditModal} openFolder={openFolder} deleteModal={toggleDeleteModal}/>
+                                {folderData.map((data, index) => (
+                                    <Folder key={index} item={data} toggleEditModal={toggleEditModal}
+                                            openFolder={openFolder} deleteModal={toggleDeleteModal}/>
                                 ))}
                             </div>
+
                         </div>
+                    ) : null}
+                    <div className="section mt-3">
+                        {listData.length > 0 ? (
+                            <>
+                                <div className="section-title">Links</div>
+                                <div className="links">
+                                    {listData.map((data, index) => (
+                                        <Link key={index} item={data} toggleEditModal={toggleEditModal}
+                                              deleteModal={toggleDeleteModal}/>
+                                    ))}
+                                </div>
+                            </>
+                        ) : null}
+
 
                     </div>
-                ) : (
-                    <EmptyScreen title={'Currently you do not have any folder or url'} />
-                )}
+
+                </div>
+
+                {folderData.length === 0 && listData.length === 0 ? (
+                    <EmptyScreen title={'Currently you do not have any folder or url'}/>) : null}
 
 
                 {/*Folder modal start*/}
@@ -453,12 +511,12 @@ function Home() {
 
                 {/*Delete modal start*/}
                 <Modal show={isDeleteModalVisible} onHide={toggleDeleteModal} ref={modalRef} centered>
-                    <Modal.Header  className="border-0">
+                    <Modal.Header className="border-0">
                         <Modal.Title></Modal.Title>
                     </Modal.Header>
 
                     <Modal.Body className="px-4 text-center delete-modal">
-                        <div className="icon"><MdDeleteForever /></div>
+                        <div className="icon"><MdDeleteForever/></div>
                         <div className={'warning-text'}>{deleteMsg}</div>
                         <div className={'d-flex align-items-center justify-content-center mt-3'}>
                             <Button className="w-25 me-3" variant="secondary" onClick={toggleDeleteModal}>
