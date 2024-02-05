@@ -273,30 +273,34 @@ function Home() {
         }
     };
     const changeFolder = async (index) => {
-        const  formData = {
+        const parent_id = globalFormData.history[index].parent_id;
+
+        // Update list, folder, and URL form data
+        const updatedFormData = {
             limit: listFormData.limit,
             page: listFormData.page,
-            parent_id: globalFormData.history[index].parent_id,
+            parent_id: parent_id,
         };
 
-        await setGlobalFormData((prevGlobalData) => {
-            // Ensure history is an array
-            const historyArray = Array.isArray(prevGlobalData.history) ? prevGlobalData.history : [];
 
-            // Remove items starting from the specified index
-            const newHistory = historyArray.slice(0, index + 1);
+        await Promise.all([
+            setGlobalFormData((prevGlobalData) => {
+                const historyArray = Array.isArray(prevGlobalData.history) ? prevGlobalData.history : [];
+                const newHistory = historyArray.slice(0, index + 1);
+                return {parent_id:parent_id, history: newHistory};
+            }),
+        ]);
 
-            return {...prevGlobalData, history: newHistory};
-        });
-        
-         setListFormData({...listFormData, parent_id: formData.parent_id})
-        await setListFormData({...listFormData, parent_id: formData.parent_id})
-        await setFolderFormData((prevData) => ({...prevData, parent_id: formData.parent_id}));
-        await setUrlFormData((prevData) => ({...prevData, parent_id: formData.parent_id}));
-
-        await fetchUrlData(formData)
-        await fetchFolderData(formData)
+        // Fetch data
+        await Promise.all([
+            fetchUrlData(updatedFormData),
+            fetchFolderData(updatedFormData),
+            setListFormData({   page:updatedFormData.page,limit: updatedFormData.limit,parent_id: updatedFormData.parent_id,}),
+            setFolderFormData({title:'',parent_id: updatedFormData.parent_id}),
+            setUrlFormData({title: '', url:'',parent_id: updatedFormData.parent_id}),
+        ]);
     };
+
 
     /*Delete*/
     const [deleteMsg, setDeleteMsg] = useState('Are you sure you want to delete this folder?');
@@ -335,7 +339,8 @@ function Home() {
     useEffect(() => {
         fetchUrlData();
         fetchFolderData();
-    }, []);
+        console.log(globalFormData, 'listFormData');
+    }, [listFormData, urlFormData, folderFormData,globalFormData]);
 
     return (
         <>

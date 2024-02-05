@@ -27,7 +27,7 @@ const Link = (props) => {
 
                 </div>
                 <div className="link-box-content p-3  rounded-bottom-3">
-                    <h5 className="title fw-bold">{item.title}</h5>
+                    <h5 className="title fw-bold show-2-line">{item.title}</h5>
                     {item.preview != null && item.preview.description != null ? (
                         <p className="small desc mb-2 show-2-line">{item.preview.description}</p>
                     ) :null}

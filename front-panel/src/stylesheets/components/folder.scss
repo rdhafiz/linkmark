@@ -1,43 +1,89 @@
-.folder{
+.folder {
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
   gap: 10px;
-  .each-folder{
-      max-width: 250px;
-      width: 100%;
-      background-color: #f0f4f9;
-      height: 48px;
-      border-radius: 10px;
-      display: flex;
+
+  .each-folder {
+    max-width: 250px;
+    width: 100%;
+    background-color: #f0f4f9;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
     padding: 12px 16px;
     line-height: 1;
-    &:hover{
-      background-color: #dfe3e7;
+
+    &:hover {
+      background-color: var(--hover-1);
     }
-    .icon{
-      padding-right:16px;
-      svg{
+
+    .icon {
+      padding-right: 16px;
+
+      svg {
         font-size: 20px;
       }
     }
-    .title{
+
+    .title {
       flex: 1;
       font-size: .875rem;
       height: 20px;
       line-height: 1.5;
     }
-    .option{
+
+    .option {
       width: 20px;
       height: 20px;
       font-size: 18px;
       border-radius: 50%;
       text-align: center;
-      &:hover{
+      position: relative;
+      cursor: pointer;
+      .options-dropdown{
+        transition: all .2s ease;
+        visibility: hidden;
+        opacity: 0;
+        width: 150px;
+        height: 0;
+        background-color: var(--white);
+        position: absolute;
+        top: 100%;
+        right: 0;
+        border-radius: 4px;
+        padding: 4px;
+        &.active{
+          transition: all .2s ease;
+          height: auto;
+          opacity: 1;
+          visibility: visible;
+        }
+        a{
+          padding: 8px;
+          border-radius: 4px;
+          cursor: pointer;
+          text-decoration: none;
+          display: block;
+          text-align: left;
+          font-size: 14px;
+          transition: all .2s ease;
+          &:hover{
+            color: inherit!important;
+            transition: all .2s ease;
+            background-color: var(--hover-1);
+          }
+        }
+      }
+
+      &:hover {
         background-color: darken(#dfe3e7, 10%);
+      }
+      .options-dropdown{
+
       }
     }
   }
