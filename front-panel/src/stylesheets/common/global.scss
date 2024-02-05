@@ -31,6 +31,10 @@ body {
   background: #f8f8f8;
   font-weight: 400;
   font-family: var(--font-poppins);
+  height: 100vh;
+    .root{
+      height: 100%;
+    }
 }
 
 
@@ -79,4 +83,14 @@ a{
 
 .cursor-pointer{
   cursor: pointer;
+}
+
+.text-blue{
+  color: var(--blue-color);
+}
+.border-bottom-blue{
+  border-bottom: 1px solid var(--blue-color);
+}
+.border-top-blue{
+  border-top: 1px solid var(--blue-color);
 }

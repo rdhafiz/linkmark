@@ -1,4 +1,4 @@
-import '../../stylesheets/layout/includes/header.scss'
+import '../../stylesheets/layout/includes/sidenav.scss'
 import {useEffect, useRef, useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import {removeCookie, getCookie, setCookie} from "../../services/cookies.jsx";
@@ -9,8 +9,11 @@ import Alert from 'react-bootstrap/Alert';
 import {IoWarningOutline} from "react-icons/io5";
 import api from "../../services/api.jsx";
 import {renderError} from "../../services/RenderError.jsx";
-
-function Header() {
+import { AiFillHome } from "react-icons/ai";
+import { MdNotificationsActive } from "react-icons/md";
+import { FaLockOpen } from "react-icons/fa";
+import { RiLogoutCircleLine } from "react-icons/ri";
+function Sidenav() {
     const [isDropdown, setIsDropdown] = useState(false);
     const [userInfo, setUserInfo] = useState({});
     const [activationForm, setActivationForm] = useState({});
@@ -146,7 +149,41 @@ function Header() {
 
     return (
         <>
-            <div className="header">
+            <div className="sidenav">
+                {/*Top section*/}
+                <div className="top">
+                    <Link to={'/'} className="logo">
+                        <span className={'text-blue border-bottom-blue'}>L</span>ink<span className={'text-blue border-top-blue'}>M</span>ark
+                    </Link>
+                    <div className="userInfo">
+                        <div className="image">
+                            <img
+                                src={'https://ui-avatars.com/api/?background=6dabe4&color=fff&rounded=false&bold=true&name=' + userInfo.name} className={'avatar'}
+                                alt="avatar"/>
+                        </div>
+                        <Link to={'/profile'} className="name">{userInfo.name}</Link>
+                    </div>
+                </div>
+
+                {/*Middle section*/}
+                <ul className="menu middle">
+                    <li><AiFillHome /> Home</li>
+                    <li><FaLockOpen /> Change Password</li>
+                    {userInfo.activation === 0 ? (<>
+                        <li>
+                            <a  onClick={() => toggleActivation()}>
+                                <MdNotificationsActive className={'text-danger'} /> Activate
+                            </a>
+                        </li>
+                    </>) : <></>}
+                </ul>
+
+                {/*Bottom section*/}
+                <div className="bottom">
+                    <button className={'btn'}><RiLogoutCircleLine /> Logout</button>
+                </div>
+            </div>
+            {/*<div className="header">
                 <div className="container d-flex position-relative justify-content-between align-items-center">
                     <Link to={'/'} className="brand-logo">Linkmark</Link>
 
@@ -156,7 +193,7 @@ function Header() {
                             src={'https://ui-avatars.com/api/?background=6dabe4&color=fff&rounded=true&bold=true&name=' + userInfo.name}
                             alt="avatar"/>
 
-                        {/*Header dropdown start*/}
+                        Header dropdown start
                         {isDropdown ? (<>
                             <ul className="dropdown-menu show header-dropdown border-0 shadow rounded-3 p-3">
                                 <li className="d-flex align-items-center justify-content-between mb-4">
@@ -180,10 +217,10 @@ function Header() {
                                 <li><a className="dropdown-item p-2 rounded-3" onClick={() => logout()}>Logout</a></li>
                             </ul>
                         </>) : <></>}
-                        {/*Header dropdown end  */}
+                        Header dropdown end
                     </div>
                 </div>
-            </div>
+            </div>*/}
 
 
             {/*Resource modal start*/}
@@ -262,4 +299,4 @@ function Header() {
     )
 }
 
-export default Header
+export default Sidenav

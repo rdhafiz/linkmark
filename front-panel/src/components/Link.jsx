@@ -35,8 +35,6 @@ const Link = (props) => {
                         <a className={'each-option'} onClick={handleDeleteClick}>Delete</a>
                     </div>
                 </div>
-                {/* <button className="edit" onClick={handleButtonClick}><MdEdit /></button>
-                <button className="delete" onClick={handleDeleteClick}><MdDeleteForever /></button>*/}
                 <div
                     className="link-box-cover rounded-top-3 d-flex justify-content-center align-items-center">
                     {item.preview != null && item.preview.images.length > 0 ? (
