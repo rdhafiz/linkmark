@@ -1,6 +1,6 @@
 import '../../stylesheets/layout/includes/sidenav.scss'
 import {useEffect, useRef, useState} from "react";
-import {Link, useNavigate} from "react-router-dom";
+import {NavLink , useNavigate} from "react-router-dom";
 import {removeCookie, getCookie, setCookie} from "../../services/cookies.jsx";
 import {Button, Modal} from "react-bootstrap";
 import Alert from 'react-bootstrap/Alert';
@@ -11,10 +11,8 @@ import api from "../../services/api.jsx";
 import {renderError} from "../../services/RenderError.jsx";
 import { AiFillHome } from "react-icons/ai";
 import { MdNotificationsActive } from "react-icons/md";
-import { FaLockOpen } from "react-icons/fa";
 import { RiLogoutCircleLine } from "react-icons/ri";
 function Sidenav() {
-    const [isDropdown, setIsDropdown] = useState(false);
     const [userInfo, setUserInfo] = useState({});
     const [activationForm, setActivationForm] = useState({});
     const [errors, setErrors] = useState({});
@@ -152,26 +150,26 @@ function Sidenav() {
             <div className="sidenav">
                 {/*Top section*/}
                 <div className="top">
-                    <Link to={'/'} className="logo">
+                    <NavLink  to={'/'} className="logo">
                         <span className={'text-blue border-bottom-blue'}>L</span>ink<span className={'text-blue border-top-blue'}>M</span>ark
-                    </Link>
+                    </NavLink >
                     <div className="userInfo">
                         <div className="image">
                             <img
                                 src={'https://ui-avatars.com/api/?background=6dabe4&color=fff&rounded=false&bold=true&name=' + userInfo.name} className={'avatar'}
                                 alt="avatar"/>
                         </div>
-                        <Link to={'/profile'} className="name">{userInfo.name}</Link>
+                        <NavLink  to={'/profile'} className="name">{userInfo.name}</NavLink >
                     </div>
                 </div>
 
                 {/*Middle section*/}
                 <ul className="menu middle">
-                    <li><AiFillHome /> Home</li>
-                    <li><FaLockOpen /> Change Password</li>
+                    <li className={'menu-item'}> <NavLink exact="true" activeclassname="active" className={'item-link'} to={'/'} ><AiFillHome /> Home </NavLink ></li>
+                    {/*<li className={'menu-item'}> <NavLink exact="true" activeclassname="active" className={'item-link'} to={'/profile?password=true'} ><FaLockOpen /> Change Password </NavLink ></li>*/}
                     {userInfo.activation === 0 ? (<>
-                        <li>
-                            <a  onClick={() => toggleActivation()}>
+                        <li className={'menu-item'}>
+                            <a  className={'item-link'} onClick={() => toggleActivation()}>
                                 <MdNotificationsActive className={'text-danger'} /> Activate
                             </a>
                         </li>
@@ -180,7 +178,7 @@ function Sidenav() {
 
                 {/*Bottom section*/}
                 <div className="bottom">
-                    <button className={'btn'}><RiLogoutCircleLine /> Logout</button>
+                    <button onClick={() => logout()} className={'btn btn-logout  '}><RiLogoutCircleLine /> Logout</button>
                 </div>
             </div>
             {/*<div className="header">

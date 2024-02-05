@@ -2,6 +2,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
+  flex-wrap: wrap;
   gap: 10px;
 
   .each-folder {
@@ -14,7 +15,7 @@
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
-    padding: 12px 16px;
+    padding: 0;
     line-height: 1;
 
     &:hover {
@@ -22,7 +23,8 @@
     }
 
     .icon {
-      padding-right: 16px;
+      cursor: pointer;
+      padding: 12px 16px;
 
       svg {
         font-size: 20px;
@@ -30,13 +32,15 @@
     }
 
     .title {
+      cursor: pointer;
       flex: 1;
       font-size: .875rem;
-      height: 20px;
-      line-height: 1.5;
+      line-height: 1;
+      padding: 12px 0;
     }
 
     .option {
+      margin-right: 12px;
       width: 20px;
       height: 20px;
       font-size: 18px;

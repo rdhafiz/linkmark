@@ -20,18 +20,22 @@ const ProfileController = {
                 {skip: skip, limit: limit}
             ).sort({'is_dir': 'desc', 'title': 'asc'}).exec();
 
+            // Calculate total count
+            const totalCount = await ResourceModel.countDocuments({
+                user_id: userId,
+                parent_id: parent_id,
+                is_dir: is_dir
+            }).exec();
+            const totalPages = Math.ceil(totalCount / limit);
+
             let rv = [];
             for (const r of resources) {
                 const resource = ResourceService.parseData(r)
-                if(is_dir == 0){
-                    resource['files'] = await ResourceModel.countDocuments({user_id: userId, is_dir: 0, parent_id: resource._id.toString()}).exec();
-                }else{
-                    resource['folders'] = await ResourceModel.countDocuments({user_id: userId, is_dir: 1, parent_id: resource._id.toString()}).exec();
-                }
+                resource['files'] = await ResourceModel.countDocuments({user_id: userId, is_dir: is_dir, parent_id: resource._id.toString()}).exec();
                 rv.push(resource);
             }
 
-            res.status(200).json({data: rv});
+            res.status(200).json({data: rv,totalCount,totalPages });
         } catch (error) {
             res.status(500).send(error.message);
         }

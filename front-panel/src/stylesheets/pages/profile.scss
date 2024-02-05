@@ -1,7 +1,42 @@
 .profile {
+  flex: 1;
+  height: 100%;
+  .header{
+    height: 65px;
+    padding: 0 50px;
+    border: 1px solid var(--grey-1);
+    border-left: none;
+    .history{
+      flex: 1;
+      ul{
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        li{
+          margin-right: 5px;
+          position: relative;
+          &:hover{
+            color: var(--blue-color);
+          }
+          &:last-child{
+            color: var(--blue-color);
+            &:after{
+              content: none;
+            }
+          }
+        }
+      }
+    }
+  }
+  .wrapper{
+    height: 100%;
+    margin: 50px;
+  }
   .profile-card {
-    max-width: 600px;
-
+    width: calc(100% - 50px);
     .profile-img-wrap {
       width: 120px;
       height: 120px;
