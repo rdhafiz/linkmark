@@ -281,13 +281,11 @@ function Home() {
             page: listFormData.page,
             parent_id: parent_id,
         };
-
-
         await Promise.all([
             setGlobalFormData((prevGlobalData) => {
                 const historyArray = Array.isArray(prevGlobalData.history) ? prevGlobalData.history : [];
                 const newHistory = historyArray.slice(0, index + 1);
-                return {parent_id:parent_id, history: newHistory};
+                return {parent_id: parent_id, history: newHistory};
             }),
         ]);
 
@@ -295,9 +293,13 @@ function Home() {
         await Promise.all([
             fetchUrlData(updatedFormData),
             fetchFolderData(updatedFormData),
-            setListFormData({   page:updatedFormData.page,limit: updatedFormData.limit,parent_id: updatedFormData.parent_id,}),
-            setFolderFormData({title:'',parent_id: updatedFormData.parent_id}),
-            setUrlFormData({title: '', url:'',parent_id: updatedFormData.parent_id}),
+            setListFormData({
+                page: updatedFormData.page,
+                limit: updatedFormData.limit,
+                parent_id: updatedFormData.parent_id,
+            }),
+            setFolderFormData({title: '', parent_id: updatedFormData.parent_id}),
+            setUrlFormData({title: '', url: '', parent_id: updatedFormData.parent_id}),
         ]);
     };
 
@@ -340,7 +342,7 @@ function Home() {
         fetchUrlData();
         fetchFolderData();
         console.log(globalFormData, 'listFormData');
-    }, [listFormData, urlFormData, folderFormData,globalFormData]);
+    }, [listFormData, urlFormData, folderFormData, globalFormData]);
 
     return (
         <>
