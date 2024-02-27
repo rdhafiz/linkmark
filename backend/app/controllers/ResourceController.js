@@ -10,24 +10,32 @@ const ProfileController = {
         try {
             const userId = req.body.auth.id;
             const parent_id = req.query.parent_id ?? "0";
+            const is_dir = req.query.is_dir ?? "0";
             const page = req.query.page ?? 1;
             const limit = req.query.limit ?? 10;
             const skip = (page - 1) * limit;
             const resources = await ResourceModel.find(
-                {user_id: userId, parent_id: parent_id},
+                {user_id: userId, parent_id: parent_id, is_dir: is_dir},
                 [],
                 {skip: skip, limit: limit}
             ).sort({'is_dir': 'desc', 'title': 'asc'}).exec();
 
+            // Calculate total count
+            const totalCount = await ResourceModel.countDocuments({
+                user_id: userId,
+                parent_id: parent_id,
+                is_dir: is_dir
+            }).exec();
+            const totalPages = Math.ceil(totalCount / limit);
+
             let rv = [];
             for (const r of resources) {
                 const resource = ResourceService.parseData(r)
-                resource['files'] = await ResourceModel.countDocuments({user_id: userId, is_dir: 0, parent_id: resource._id.toString()}).exec();
-                resource['folders'] = await ResourceModel.countDocuments({user_id: userId, is_dir: 1, parent_id: resource._id.toString()}).exec();
+                resource['files'] = await ResourceModel.countDocuments({user_id: userId, is_dir: is_dir, parent_id: resource._id.toString()}).exec();
                 rv.push(resource);
             }
 
-            res.status(200).json({data: rv});
+            res.status(200).json({data: rv,totalCount,totalPages });
         } catch (error) {
             res.status(500).send(error.message);
         }

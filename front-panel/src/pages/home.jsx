@@ -4,27 +4,26 @@ import React, {useEffect, useRef, useState} from "react";
 import '../stylesheets/pages/home.scss'
 
 // icons
-import {IoLink} from "react-icons/io5";
-import {FcFolder} from "react-icons/fc";
-import {FaPlus} from "react-icons/fa6";
-import {Button, Modal} from "react-bootstrap";
-import api from "../services/api.jsx";
-import {setCookie} from "../services/cookies.jsx";
-import Link from "../components/Link.jsx";
-import Folder from "../components/Folder.jsx";
+import {FaAnglesRight} from "react-icons/fa6";
 import {MdDeleteForever} from "react-icons/md";
+import {TbReload} from "react-icons/tb";
+
+import {Button, Modal, Dropdown} from "react-bootstrap";
+import api from "../services/api.jsx";
+import {renderError} from "../services/RenderError.jsx";
+import EmptyScreen from "../components/Empty-screen.jsx";
+import Folder from "../components/Folder.jsx";
+import Link from '../components/Link.jsx'
+import folder from "../components/Folder.jsx";
+import {HiOutlineDotsVertical} from "react-icons/hi";
+import {IoLink} from "react-icons/io5";
 
 function Home() {
     /*Global*/
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const modalRef = useRef(null);
-    const renderError = (fieldName) => {
-        if (errors[fieldName]) {
-            return <div className="text-danger">{errors[fieldName]}</div>;
-        }
-        return null;
-    };
+
     const [globalFormData, setGlobalFormData] = useState({
         parent_id: '0',
         history: [
@@ -35,6 +34,10 @@ function Home() {
 
     /*Folder*/
     const [isFolderModalVisible, setIsFolderModalVisible] = useState(false);
+    const [totalPageFolder, setTotalPageFolder] = useState(0);
+    const [totalCountFolder, setTotalCountFolder] = useState(0);
+    const [totalPageLinks, setTotalPageLinks] = useState(0);
+    const [totalCountLinks, setTotalCountLinks] = useState(0);
     const [folderFormData, setFolderFormData] = useState({
         title: "",
         parent_id: '0',
@@ -60,7 +63,7 @@ function Home() {
                 setIsLoading(false);
                 toggleFolderModal();
                 resetFormFolder()
-                await fetchListData()
+                await fetchFolderData()
             } else {
                 setErrors(result);
                 setIsLoading(false);
@@ -105,7 +108,7 @@ function Home() {
                 setIsLoading(false);
                 toggleUrlModal();
                 resetFormUrl()
-                fetchListData()
+                fetchUrlData()
             } else {
                 setErrors(result);
                 setIsLoading(false);
@@ -116,10 +119,10 @@ function Home() {
         }
     };
     const resetFormUrl = () => {
-        setFolderFormData({
+        setUrlFormData({
             title: "",
-            url: '',
             parent_id: globalFormData.parent_id,
+            url: '',
         })
     }
 
@@ -158,7 +161,7 @@ function Home() {
             if (result.msg) {
                 setIsLoading(false);
                 resetFormUrl()
-                await fetchListData()
+                await fetchUrlData()
                 await toggleEditModal()
             } else {
                 setErrors(result);
@@ -179,13 +182,19 @@ function Home() {
 
     /*List*/
     const [isListLoading, setIsListLoading] = useState(false);
+    const [folderData, setFolderData] = useState([]);
     const [listData, setListData] = useState([]);
     const [listFormData, setListFormData] = useState({
+        page: 1,
+        limit:20,
+        parent_id: globalFormData.parent_id,
+    });
+    const [folderParam, setFolderParam] = useState({
         page: 1,
         limit: 20,
         parent_id: globalFormData.parent_id,
     });
-    const fetchListData = async (data = null) => {
+    const fetchUrlData = async (data = null) => {
         try {
             let formData = {
                 limit: listFormData.limit,
@@ -203,7 +212,9 @@ function Home() {
             setIsListLoading(true);
             const result = await api.get(`/resource/all?page=${formData.page}&limit=${formData.limit}&parent_id=${formData.parent_id}`);
             if (result.data) {
-                setListData(result.data);
+                updateUrlData(result.data);
+                setTotalPageLinks(result.totalPages);
+                setTotalCountLinks(result.totalCount);
                 setIsListLoading(false);
             } else {
                 setErrors(result);
@@ -214,29 +225,141 @@ function Home() {
             console.error("Error during list retrieval:", error);
         }
     };
+    const fetchFolderData = async (data = null) => {
+        try {
+            let formData = {
+                limit: folderParam.limit,
+                page: folderParam.page,
+                parent_id: folderParam.parent_id,
+                is_dir: 1,
+            }
+            if (data != null) {
+                formData = {
+                    limit: data.limit,
+                    page: data.page,
+                    parent_id: data.parent_id,
+                    is_dir: 1,
+                }
+                setFolderParam(formData)
+            }
+            setIsListLoading(true);
+            const result = await api.get(`/resource/all?page=${formData.page}&limit=${formData.limit}&parent_id=${formData.parent_id}&is_dir=1`);
+            if (result.data) {
+                updateFolderData(result.data);
+                setTotalPageFolder(result.totalPages);
+                setTotalCountFolder(result.totalCount);
+                setIsListLoading(false);
+            } else {
+                setErrors(result);
+                setIsListLoading(false);
+            }
+        } catch (error) {
+            setIsListLoading(false);
+            console.error("Error during list retrieval:", error);
+        }
+    };
+    const updateFolderData = (newData) => {
+        setFolderData((prevData) => {
+            // Create a Set to keep track of unique IDs
+            const uniqueIds = new Set(prevData.map(item => item._id));
+
+            // Filter out items with duplicate IDs from newData
+            const filteredNewData = newData.filter(item => !uniqueIds.has(item._id));
+
+            // Concatenate the filtered newData with the existing data
+            return [...prevData, ...filteredNewData];
+        });
+    };
+    const updateUrlData = (newData) => {
+        setListData((prevData) => {
+            // Create a Set to keep track of unique IDs
+            const uniqueIds = new Set(prevData.map(item => item._id));
+
+            // Filter out items with duplicate IDs from newData
+            const filteredNewData = newData.filter(item => !uniqueIds.has(item._id));
+
+            // Concatenate the filtered newData with the existing data
+            return [...prevData, ...filteredNewData];
+        });
+    };
+    const loadFolder = async () => {
+        // Update list, folder, and URL form data
+        const updatedFormData = {
+            limit: folderParam.limit,
+            page: folderParam.page + 1,
+            parent_id: folderParam.parent_id,
+            is_dir: folderParam.is_dir,
+        };
+        // Fetch data
+        await Promise.all([
+            fetchFolderData(updatedFormData),
+            setFolderParam({
+                limit: updatedFormData.limit,
+                page: updatedFormData.page,
+                parent_id: updatedFormData.parent_id,
+                is_dir: updatedFormData.is_dir
+            })
+        ]);
+    }
+    const loadLinks = async () => {
+        // Update list, folder, and URL form data
+        const updatedFormData = {
+            limit: listFormData.limit,
+            page: listFormData.page + 1,
+            parent_id: listFormData.parent_id,
+        };
+        // Fetch data
+        await Promise.all([
+            fetchUrlData(updatedFormData),
+            setListFormData({
+                limit: updatedFormData.limit,
+                page: updatedFormData.page,
+                parent_id: updatedFormData.parent_id,
+            })
+        ]);
+    }
     const openFolder = async (data) => {
         try {
+            setFolderData(prevFolderData => {
+                // Ensure immediate update of folder data
+                return [];
+            });
+
+            setListData(prevListData => {
+                // Ensure immediate update of list data
+                return [];
+            });
+
             // Update list data for the new folder
             const formData = {
+                limit: folderParam.limit,
+                page: folderParam.page,
+                parent_id: data._id,
+                is_dir: 1,
+            };
+
+            // Update list data for the new folder
+            const formDataUrl = {
                 limit: listFormData.limit,
                 page: listFormData.page,
                 parent_id: data._id,
             };
 
-            await fetchListData(formData);
+            await fetchFolderData(formData);
+            await fetchUrlData(formDataUrl);
 
             // Update form data for folder and URL
-            setFolderFormData((prevData) => ({ ...prevData, parent_id: formData.parent_id }));
-            setUrlFormData((prevData) => ({ ...prevData, parent_id: formData.parent_id }));
+            setFolderFormData((prevData) => ({...prevData, parent_id: formData.parent_id}));
+            setUrlFormData((prevData) => ({...prevData, parent_id: formData.parent_id}));
 
             // Update global form data and history
             setGlobalFormData((prevGlobalData) => {
-                const newHistoryItem = { parent_id: formData.parent_id, title: data.title };
+                const newHistoryItem = {parent_id: formData.parent_id, title: data.title};
                 const newHistory = Array.isArray(prevGlobalData.history)
                     ? [...prevGlobalData.history, newHistoryItem]
                     : [newHistoryItem];
 
-                return { parent_id: formData.parent_id, history: newHistory };
+                return {parent_id: formData.parent_id, history: newHistory};
             });
         } catch (error) {
             console.error("Error opening folder:", error);
@@ -244,26 +367,53 @@ function Home() {
         }
     };
     const changeFolder = async (index) => {
-        const formData = {
-            limit: listFormData.limit,
-            page: listFormData.page,
-            parent_id: globalFormData.history[index].parent_id,
-        };
-        setListFormData({...listFormData,parent_id: formData.parent_id})
-        setFolderFormData((prevData) => ({ ...prevData, parent_id: formData.parent_id }));
-        setUrlFormData((prevData) => ({ ...prevData, parent_id: formData.parent_id }));
+        try {
+            setFolderData([])
+            setListData([])
+            const parent_id = globalFormData.history[index].parent_id;
 
-        setGlobalFormData((prevGlobalData) => {
-            // Ensure history is an array
-            const historyArray = Array.isArray(prevGlobalData.history) ? prevGlobalData.history : [];
+            // Update list, folder form data
+            const updatedFormData = {
+                limit: folderParam.limit,
+                page: 1,
+                parent_id: parent_id,
+                is_dir: 1,
+            };
 
-            // Remove items starting from the specified index
-            const newHistory = historyArray.slice(0, index + 1);
+            // Update list and URL form data
+            const updatedFormDataUrl = {
+                limit: listFormData.limit,
+                page: 1,
+                parent_id: parent_id,
+            };
 
-            return { ...prevGlobalData, history: newHistory };
-        });
-        await fetchListData(formData)
+            // Update global form data
+            await setGlobalFormData((prevGlobalData) => {
+                const historyArray = Array.isArray(prevGlobalData.history) ? prevGlobalData.history : [];
+                const newHistory = historyArray.slice(0, index + 1);
+                return { parent_id: parent_id, history: newHistory };
+            });
+
+            // Fetch data sequentially
+            await fetchUrlData(updatedFormDataUrl);
+            await fetchFolderData(updatedFormData);
+
+            // Update list and folder form data
+            setListFormData({
+                page: updatedFormDataUrl.page,
+                limit: updatedFormDataUrl.limit,
+                parent_id: updatedFormDataUrl.parent_id,
+            });
+
+            setFolderFormData({ title: '', parent_id: updatedFormData.parent_id });
+            setUrlFormData({ title: '', url: '', parent_id: updatedFormData.parent_id });
+        } catch (error) {
+            console.error("Error in changeFolder:", error);
+            // Handle error as needed
+        }
     };
+
+
 
     /*Delete*/
     const [deleteMsg, setDeleteMsg] = useState('Are you sure you want to delete this folder?');
@@ -271,7 +421,7 @@ function Home() {
     const [deletedId, setDeletedId] = useState('');
 
     const toggleDeleteModal = (data = null, type = 'folder') => {
-        if(data != null){
+        if (data != null) {
             setDeletedId(data._id)
             if (type === 'folder') {
                 setDeleteMsg('Are you sure you want to delete this folder ?')
@@ -287,7 +437,7 @@ function Home() {
             const result = await api.delete(`/resource/delete/${deletedId}`, editFormData);
             if (result.msg) {
                 setIsLoading(false);
-                await fetchListData()
+                await fetchUrlData()
                 await toggleDeleteModal()
             } else {
                 setIsLoading(false);
@@ -300,38 +450,94 @@ function Home() {
 
 
     useEffect(() => {
-        fetchListData();
-    }, []);
+        fetchUrlData();
+        fetchFolderData();
+    }, [listFormData, urlFormData, folderFormData, globalFormData]);
+
     return (
         <>
-            <div className="home container">
-
-                <div className="mx-3 my-4 d-flex justify-content-between align-items-center">
+            <div className="home ">
+                <div className="header d-flex justify-content-between align-items-center">
                     <div className="history">
-                        <ul>
+                        <ul key={'link'}>
                             {globalFormData.history.map((data, index) => (
-                                <li key={index} className={'cursor-pointer'} onClick={() => changeFolder(index)}>
-                                    {data.title}
-                                </li>
+                                <>
+                                    <li key={index + 'link'} className={'cursor-pointer'}
+                                        onClick={async () => changeFolder(index)}>
+                                        {data.title}
+                                    </li>
+
+                                    {index === globalFormData.history.length - 1 ?
+                                        null
+                                        : <li key={index + 'arrow'} className={'fs-10'}>
+                                            <FaAnglesRight/>
+                                        </li>}
+
+                                </>
                             ))}
                         </ul>
                     </div>
-                    <div>
-                        <button type="button" className="btn btn-theme width-150 me-3"
-                                onClick={() => toggleFolderModal()}>Add Folder <i><FaPlus/></i></button>
-                        <button type="button" className="btn btn-theme width-150" onClick={() => toggleUrlModal()}>Add
-                            URL <i><FaPlus/></i></button>
+                    <div className={'options'}>
+                        <Dropdown>
+                            <Dropdown.Toggle variant="primary" className={'btn btn-theme width-150'}
+                            >
+                                New
+                            </Dropdown.Toggle>
+
+                            <Dropdown.Menu>
+                                <Dropdown.Item onClick={() => toggleFolderModal()}>Add Folder</Dropdown.Item>
+                                <Dropdown.Item onClick={() => toggleUrlModal()}>Add Url</Dropdown.Item>
+                            </Dropdown.Menu>
+                        </Dropdown>
                     </div>
                 </div>
 
-                <div className="home-content p-3">
-                    {/*Link*/}
-                    {listData.map((data, index) => (
-                        data.is_dir === 0 ? (
-                            <Link key={index} item={data} toggleEditModal={toggleEditModal} deleteModal={toggleDeleteModal}/>
-                        ) : <Folder key={index} item={data} toggleEditModal={toggleEditModal} openFolder={openFolder} deleteModal={toggleDeleteModal}/>
-                    ))}
+
+                <div className="home-content ">
+                    {/*Folder*/}
+                    {folderData.length > 0 ? (
+                        <div className="section">
+                            <div className="section-title">Folders ({totalCountFolder})</div>
+                            <div className="folder">
+                                {folderData.map((data, index) => (
+                                    <Folder key={index + 'folder'} item={data} toggleEditModal={toggleEditModal}
+                                            openFolder={openFolder} deleteModal={toggleDeleteModal}/>
+                                ))}
+                                {totalPageFolder > 1 && totalPageFolder !== folderParam.page ? (
+                                    <div className="each-folder"  key={'folder-reload'}>
+                                        <div className="title text-center w-100 " onClick={loadFolder}><TbReload/> Load more
+                                        </div>
+                                    </div>
+                                ) : null}
+                            </div>
+
+                        </div>
+                    ) : null}
+                    <div className="section mt-3">
+                        {listData.length > 0 ? (
+                            <>
+                                <div className="section-title">Links ({totalCountLinks})</div>
+                                <div className="links">
+                                    {listData.map((data, index) => (
+                                        <Link key={index} item={data} toggleEditModal={toggleEditModal}
+                                              deleteModal={toggleDeleteModal}/>
+                                    ))}
+                                    {totalPageLinks > 1 && totalPageLinks !== listFormData.page ? (
+                                        <div  onClick={loadLinks} className="link-box cursor-pointer rounded-3 shadow-sm position-relative d-flex align-items-center justify-content-center">
+                                            <div className="fs-6"><TbReload/> Load more</div>
+                                        </div>
+                                    ) : null}
+                                </div>
+                            </>
+                        ) : null}
+
+
+                    </div>
+
                 </div>
+
+                {folderData.length === 0 && listData.length === 0 ? (
+                    <EmptyScreen title={'Currently you do not have any folder or url'}/>) : null}
 
 
                 {/*Folder modal start*/}
@@ -351,7 +557,7 @@ function Home() {
                                        name={'title'}
                                        onChange={handleInputChange}
                                        placeholder="Enter a title."/>
-                                {renderError("title")}
+                                {renderError("title", errors)}
                             </div>
 
                         </Modal.Body>
@@ -383,7 +589,8 @@ function Home() {
                                        name={'title'}
                                        onChange={handleInputChangeUrl}
                                        placeholder="Enter a title."/>
-                                {renderError("title")}
+
+                                {renderError("title", errors)}
                             </div>
                             <div className="form-group form-theme mb-4">
                                 <input type="text" className="form-control ps-0"
@@ -392,7 +599,7 @@ function Home() {
                                        name={'url'}
                                        onChange={handleInputChangeUrl}
                                        placeholder="Enter a Url."/>
-                                {renderError("url")}
+                                {renderError("url", errors)}
                             </div>
 
                         </Modal.Body>
@@ -424,7 +631,7 @@ function Home() {
                                        name={'title'}
                                        onChange={handleInputChangeEdit}
                                        placeholder="Enter a title."/>
-                                {renderError("title")}
+                                {renderError("title", errors)}
                             </div>
 
                         </Modal.Body>
@@ -441,12 +648,12 @@ function Home() {
 
                 {/*Delete modal start*/}
                 <Modal show={isDeleteModalVisible} onHide={toggleDeleteModal} ref={modalRef} centered>
-                    <Modal.Header  className="border-0">
+                    <Modal.Header className="border-0">
                         <Modal.Title></Modal.Title>
                     </Modal.Header>
 
                     <Modal.Body className="px-4 text-center delete-modal">
-                        <div className="icon"><MdDeleteForever /></div>
+                        <div className="icon"><MdDeleteForever/></div>
                         <div className={'warning-text'}>{deleteMsg}</div>
                         <div className={'d-flex align-items-center justify-content-center mt-3'}>
                             <Button className="w-25 me-3" variant="secondary" onClick={toggleDeleteModal}>

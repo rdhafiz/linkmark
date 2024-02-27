@@ -1,87 +1,114 @@
-import React, {useState} from "react";
-
-// Icons
+import React, { useState } from "react";
 import { RiAccountPinCircleLine } from "react-icons/ri";
 import { IoLockClosedOutline } from "react-icons/io5";
-import { setCookie } from '../services/cookies.jsx';
-
-
-// Link to replace anchor tag <a></a>
-import {Link, Navigate, redirect, useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api.jsx";
+import { renderError } from '../services/RenderError.jsx';
+import { handleInputChange } from '../services/InputUtils.jsx';
+import {setCookie} from "../services/cookies.jsx";
 
 const Login = () => {
+    const navigate = useNavigate();
+
+    // State for form data, loading status, and errors
     const [formData, setFormData] = useState({
         email: "",
         password: "",
     });
-    const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
+    const [errors, setErrors] = useState({});
 
-    const navigate = useNavigate()
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
+    // Handle input changes dynamically
+    const onInputChanges = (e) => {
+        handleInputChange(e, formData, setFormData);
     };
-    const handleSignIn = async () => {
+
+    // Handle sign-in logic
+    const signIn = async () => {
         setErrors({});
         try {
             setIsLoading(true);
+            // Make API request to sign in
             const result = await api.post('/auth/login', formData);
             if (result.access_token) {
+                // If successful, update state and navigate to home
                 setIsLoading(false);
                 setCookie('authToken', result.access_token, { expires: 7 });
                 setCookie('userInfo', JSON.stringify(result.data), { expires: 7 });
-                navigate("/")
+                navigate("/");
             } else {
+                // If unsuccessful, set errors
                 setErrors(result);
                 setIsLoading(false);
             }
         } catch (error) {
+            // Handle API request error
             setIsLoading(false);
             console.error("Error during login:", error);
         }
     };
 
-    const renderError = (fieldName) => {
-        if (errors[fieldName]) {
-            return <div className="text-danger">{errors[fieldName]}</div>;
-        }
-        return null;
-    };
-
-
     return (
-        <>
-            <div className="sign-in-form">
-                <h2 className="form-title">Sign in</h2>
-                <form method="POST"  onSubmit={(e) => {e.preventDefault();handleSignIn();}} className="register-form" id="login-form">
-                    <div className="form-group form-theme has-icon-left mb-3">
-                        <label htmlFor={'email'} className="input-icon"><i ><RiAccountPinCircleLine /></i></label>
-                        <input type="text" value={formData.email} onChange={handleInputChange} name="email" id="email" className={'form-control'} placeholder="Email Address"/>
-                        {renderError("email")}
-                    </div>
-                    <div className="form-group form-theme has-icon-left mb-2">
-                        <label htmlFor={'password'} className="input-icon"><i ><IoLockClosedOutline /></i></label>
-                        <input type="password" value={formData.password} onChange={handleInputChange}  name="password" className={'form-control'} id="password" placeholder="Password"/>
-                        {renderError("password")}
-                    </div>
-                    <div className="form-group text-end mb-3">
-                        <Link  to={'/auth/forgot'}>Forgot Password</Link>
-                    </div>
-                    <div className="form-group text-start mb-3">
-                        <button type="submit" name="signin" id="signin" disabled={isLoading} className="btn btn-theme btn-auth w-100" >{isLoading ? 'Signing in...' : 'Sign In'}</button>
-                    </div>
-                    <div className="form-group text-center mb-3">
-                        Do not have an account? <Link  to={'/auth/register'}> Register Now</Link>
-                    </div>
-                </form>
-            </div>
-        </>
+        <div className="sign-in-form">
+            {/* Form title */}
+            <h2 className="form-title">Sign in</h2>
+            {/* Sign-in form */}
+            <form onSubmit={(e) => { e.preventDefault(); signIn(); }} className="register-form" id="login-form">
+                {/* Email input */}
+                <div className="form-group form-theme has-icon-left mb-3">
+                    <label htmlFor="email" className="input-icon"><i><RiAccountPinCircleLine /></i></label>
+                    <input
+                        type="text"
+                        value={formData.email}
+                        onChange={onInputChanges}
+                        name="email"
+                        id="email"
+                        className="form-control"
+                        placeholder="Email Address"
+                        aria-label="Email Address"
+                    />
+                    {renderError("email", errors)}
+                </div>
+                {/* Password input */}
+                <div className="form-group form-theme has-icon-left mb-2">
+                    <label htmlFor="password" className="input-icon"><i><IoLockClosedOutline /></i></label>
+                    <input
+                        type="password"
+                        value={formData.password}
+                        onChange={onInputChanges}
+                        name="password"
+                        className="form-control"
+                        id="password"
+                        placeholder="Password"
+                        aria-label="Password"
+                    />
+                    {renderError("password", errors)}
+                </div>
+                {/* Forgot password link */}
+                <div className="form-group text-end mb-3">
+                    <Link to="/auth/forgot">Forgot Password</Link>
+                </div>
+                {/* Sign-in button */}
+                <div className="form-group text-start mb-3">
+                    <button
+                        type="submit"
+                        name="signin"
+                        id="signin"
+                        disabled={isLoading}
+                        className="btn btn-theme btn-auth w-100"
+                        aria-label={isLoading ? 'Signing in...' : 'Sign In'}
+                    >
+                        {isLoading ? 'Signing in...' : 'Sign In'}
+                    </button>
+                </div>
+                {/* Registration link */}
+                <div className="form-group text-center mb-3">
+                    Do not have an account? <Link to="/auth/register">Register Now</Link>
+                </div>
+                {/* General errors */}
+                {renderError("general", errors)}
+            </form>
+        </div>
     );
 };
 

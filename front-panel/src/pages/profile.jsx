@@ -1,8 +1,9 @@
 // Importing required modules and styles
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {getCookie, setCookie} from "../services/cookies.jsx";
 import api from "../services/api.jsx";
-import { Button, Modal } from 'react-bootstrap';
+import {Button,  Modal} from 'react-bootstrap';
+import '../stylesheets/pages/profile.scss';
 
 // Profile component
 function Profile() {
@@ -122,12 +123,26 @@ function Profile() {
 
     return (
         <>
-            <div className="profile container">
+            <div className="profile ">
+
+                <div className="header d-flex justify-content-between align-items-center">
+                    <div className="history">
+                        <ul>
+                            <li className={'cursor-pointer'}  >
+                              Profile
+                            </li>
+                        </ul>
+                    </div>
+                    <div className={'options'}>
+                    </div>
+                </div>
+
                 {/* Profile card */}
-                <div className="card border-0 shadow p-3 my-3 profile-card mx-auto w-50">
+                <div className="wrapper">
+
+                    <div className="card border-0 shadow profile-card mx-auto w-50">
                     {/* Card header */}
                     <div className="card-header bg-white border-0">
-                        <h3 className="card-title fs-3 fw-medium">Profile</h3>
                     </div>
                     {/* Card body */}
                     <div className="card-body">
@@ -175,6 +190,7 @@ function Profile() {
                     </div>
                 </div>
 
+                </div>
                 {/* Edit profile modal */}
                 <Modal show={isProfileModalVisible} onHide={toggleProfileModal} ref={modalRef} centered>
                     {/* Modal header */}
@@ -253,7 +269,8 @@ function Profile() {
                     </Modal.Header>
                     {/* Modal form for password change */}
                     <form autoComplete="off" onSubmit={(e) => {
-                        e.preventDefault();handlePasswordUpdate();
+                        e.preventDefault();
+                        handlePasswordUpdate();
                         // Add logic for password change
                     }}>
                         {/* Modal body */}

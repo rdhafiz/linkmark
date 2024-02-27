@@ -29,3 +29,7 @@ $base-value: 1px; //Defines the base value.
     font-size: $base-value * $i !important;
   }
 }
+
+.text-blue{
+  color: var(--blue-color);
+}
